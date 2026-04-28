@@ -1,0 +1,29 @@
+.layer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  width: 22rem;
+}
+
+.layer__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.layer__radios {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.layer__sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

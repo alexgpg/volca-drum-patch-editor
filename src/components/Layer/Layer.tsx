@@ -1,0 +1,117 @@
+import { IconRadioGroup } from '../controls/IconRadioGroup';
+import { Slider } from '../controls/Slider';
+import type {
+  AmpEG,
+  LayerState,
+  ModType,
+  SoundSource,
+} from '../../types/layer';
+import './Layer.css';
+
+export interface LayerProps {
+  value: LayerState;
+  onChange: <K extends keyof LayerState>(param: K, value: LayerState[K]) => void;
+  label?: string;
+  name?: string;
+  disabled?: boolean;
+}
+
+const SOUND_OPTIONS: { value: SoundSource; label: string }[] = [
+  { value: 'sine', label: 'Sine' },
+  { value: 'saw', label: 'Saw' },
+  { value: 'noiseHP', label: 'HP' },
+  { value: 'noiseLP', label: 'LP' },
+  { value: 'noiseBP', label: 'BP' },
+];
+
+const MOD_OPTIONS: { value: ModType; label: string }[] = [
+  { value: 'envelope', label: 'Env' },
+  { value: 'lfo', label: 'LFO' },
+  { value: 'random', label: 'Rnd' },
+];
+
+const ENV_OPTIONS: { value: AmpEG; label: string }[] = [
+  { value: 'ad', label: 'AD' },
+  { value: 'exp', label: 'Exp' },
+  { value: 'multi', label: 'Multi' },
+];
+
+export function Layer({
+  value,
+  onChange,
+  label = 'Layer',
+  name = 'layer',
+  disabled,
+}: LayerProps) {
+  return (
+    <section className="layer" aria-label={label}>
+      <h3 className="layer__title">{label}</h3>
+
+      <div className="layer__radios">
+        <IconRadioGroup
+          label="Sound Source"
+          name={`${name}-source`}
+          value={value.soundSource}
+          options={SOUND_OPTIONS}
+          onChange={(v) => onChange('soundSource', v)}
+          disabled={disabled}
+        />
+        <IconRadioGroup
+          label="Mod Type"
+          name={`${name}-mod`}
+          value={value.modType}
+          options={MOD_OPTIONS}
+          onChange={(v) => onChange('modType', v)}
+          disabled={disabled}
+        />
+        <IconRadioGroup
+          label="Amp EG"
+          name={`${name}-env`}
+          value={value.ampEG}
+          options={ENV_OPTIONS}
+          onChange={(v) => onChange('ampEG', v)}
+          disabled={disabled}
+        />
+      </div>
+
+      <div className="layer__sliders">
+        <Slider
+          label="Level"
+          value={value.level}
+          onChange={(v) => onChange('level', v)}
+          disabled={disabled}
+        />
+        <Slider
+          label="Pitch"
+          value={value.pitch}
+          onChange={(v) => onChange('pitch', v)}
+          disabled={disabled}
+        />
+        <Slider
+          label="EG Attack"
+          value={value.egAttack}
+          onChange={(v) => onChange('egAttack', v)}
+          disabled={disabled}
+        />
+        <Slider
+          label="EG Release"
+          value={value.egRelease}
+          onChange={(v) => onChange('egRelease', v)}
+          disabled={disabled}
+        />
+        <Slider
+          label="Mod Amount"
+          value={value.modAmount}
+          onChange={(v) => onChange('modAmount', v)}
+          disabled={disabled}
+        />
+        <Slider
+          label="Mod Rate"
+          value={value.modRate}
+          onChange={(v) => onChange('modRate', v)}
+          disabled={disabled}
+        />
+      </div>
+    </section>
+  );
+}
