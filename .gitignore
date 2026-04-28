@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 commit-message.txt
+
+*storybook.log
+storybook-static
