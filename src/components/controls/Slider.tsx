@@ -7,6 +7,7 @@ export interface SliderProps {
   min?: number;
   max?: number;
   disabled?: boolean;
+  compact?: boolean;
 }
 
 export function Slider({
@@ -16,6 +17,7 @@ export function Slider({
   min = 0,
   max = 127,
   disabled,
+  compact,
 }: SliderProps) {
   const commit = (raw: string) => {
     if (raw === '') return;
@@ -24,7 +26,7 @@ export function Slider({
     onChange(Math.min(max, Math.max(min, Math.round(n))));
   };
   return (
-    <label className="slider">
+    <label className={`slider${compact ? ' slider--compact' : ''}`}>
       <span className="slider__label">{label}</span>
       <input
         type="range"
