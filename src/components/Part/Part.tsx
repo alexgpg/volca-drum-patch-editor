@@ -10,7 +10,6 @@ export interface PartProps {
   onChange: (change: PartChange) => void;
   label?: string;
   name?: string;
-  partNumber?: 1 | 2 | 3 | 4 | 5 | 6;
   disabled?: boolean;
 }
 
@@ -32,6 +31,32 @@ export function Part({
   return (
     <section className="part" aria-label={label}>
       <h2 className="part__title">{label}</h2>
+
+      <div className="part__link">
+        <Toggle
+          label="Link Layers"
+          value={value.linked}
+          onChange={(v) => onPart('linked', v)}
+          disabled={disabled}
+        />
+      </div>
+
+      <div className="part__layers">
+        <Layer
+          label="Layer 1"
+          name={`${name}-l1`}
+          value={value.layer1}
+          onChange={onLayer(1)}
+          disabled={disabled}
+        />
+        <Layer
+          label="Layer 2"
+          name={`${name}-l2`}
+          value={value.layer2}
+          onChange={onLayer(2)}
+          disabled={disabled}
+        />
+      </div>
 
       <div className="part__header">
         <div className="part__group">
@@ -83,23 +108,6 @@ export function Part({
             disabled={disabled}
           />
         </div>
-      </div>
-
-      <div className="part__layers">
-        <Layer
-          label="Layer 1"
-          name={`${name}-l1`}
-          value={value.layer1}
-          onChange={onLayer(1)}
-          disabled={disabled}
-        />
-        <Layer
-          label="Layer 2"
-          name={`${name}-l2`}
-          value={value.layer2}
-          onChange={onLayer(2)}
-          disabled={disabled}
-        />
       </div>
     </section>
   );

@@ -24,3 +24,7 @@ Built with React, TypeScript, and Vite.
 - `pnpm build` — type-check and build for production
 - `pnpm lint` — run ESLint
 - `pnpm preview` — preview the production build
+
+## TODO
+
+- Linked-layers MIDI dispatch optimisation: when `PartState.linked` is true, send one "both layers" CC (16, 19, 22, 25, 28, 31, 48 — see `doc/midi.md`) instead of two per-layer CCs. Purely a wire-side change in the future MIDI dispatch hook; the UI mirroring is already in place.

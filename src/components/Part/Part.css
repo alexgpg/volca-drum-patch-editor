@@ -47,6 +47,20 @@
   letter-spacing: 0.04em;
 }
 
+.part__link {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.part__link > .toggle {
+  grid-template-columns: auto auto auto;
+  gap: 0.5rem;
+}
+
 .part__layers {
   display: grid;
   grid-template-columns: 1fr 1fr;

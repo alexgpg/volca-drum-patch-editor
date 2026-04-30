@@ -12,6 +12,8 @@ export interface PartState {
   bitReduction: number;
   fold: number;
   dryGain: number;
+
+  linked: boolean;
 }
 
 export type PartParam = Exclude<keyof PartState, 'layer1' | 'layer2'>;
@@ -35,4 +37,5 @@ export const DEFAULT_PART: PartState = {
   bitReduction: 0,
   fold: 0,
   dryGain: 64,
+  linked: false,
 };
