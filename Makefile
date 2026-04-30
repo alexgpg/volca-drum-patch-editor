@@ -1,4 +1,4 @@
-.PHONY: install dev build preview lint storybook build-storybook clean
+.PHONY: install dev build preview lint test storybook build-storybook clean
 
 install:
 	pnpm install
@@ -14,6 +14,9 @@ preview:
 
 lint:
 	pnpm lint
+
+test:
+	pnpm test
 
 storybook:
 	pnpm storybook

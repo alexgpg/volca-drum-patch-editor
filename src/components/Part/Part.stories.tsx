@@ -11,7 +11,7 @@ const meta = {
   component: Part,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
-  args: { onChange: fn() },
+  args: { onChange: fn(), onReplace: fn() },
   render: function Render(args) {
     const [{ value }, updateArgs] = useArgs<{ value: PartState }>();
     return (
@@ -29,6 +29,9 @@ const meta = {
                 value: { ...value, [change.param]: change.value },
               });
             }
+          } else if (change.kind === 'layer-replace') {
+            const slotKey = change.slot === 1 ? 'layer1' : 'layer2';
+            updateArgs({ value: { ...value, [slotKey]: change.value } });
           } else if (value.linked) {
             updateArgs({
               value: {
@@ -47,6 +50,10 @@ const meta = {
             });
           }
           args.onChange(change);
+        }}
+        onReplace={(next) => {
+          updateArgs({ value: next });
+          args.onReplace?.(next);
         }}
       />
     );

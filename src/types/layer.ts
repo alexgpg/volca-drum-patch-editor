@@ -12,6 +12,7 @@ export interface LayerState {
   egRelease: number;
   modAmount: number;
   modRate: number;
+  comment: string;
 }
 
 export type LayerParam = keyof LayerState;
@@ -26,4 +27,5 @@ export const DEFAULT_LAYER: LayerState = {
   egRelease: 64,
   modAmount: 0,
   modRate: 64,
+  comment: '',
 };

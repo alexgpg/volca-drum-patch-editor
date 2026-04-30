@@ -14,18 +14,20 @@ export interface PartState {
   dryGain: number;
 
   linked: boolean;
+  comment: string;
 }
 
 export type PartParam = Exclude<keyof PartState, 'layer1' | 'layer2'>;
 
 export type PartChange =
-  | { kind: 'part'; param: PartParam; value: number | boolean }
+  | { kind: 'part'; param: PartParam; value: number | boolean | string }
   | {
       kind: 'layer';
       slot: 1 | 2;
       param: keyof LayerState;
       value: LayerState[keyof LayerState];
-    };
+    }
+  | { kind: 'layer-replace'; slot: 1 | 2; value: LayerState };
 
 export const DEFAULT_PART: PartState = {
   layer1: DEFAULT_LAYER,
@@ -38,4 +40,5 @@ export const DEFAULT_PART: PartState = {
   fold: 0,
   dryGain: 64,
   linked: false,
+  comment: '',
 };

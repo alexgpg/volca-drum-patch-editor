@@ -10,7 +10,7 @@ const meta = {
   component: Layer,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
-  args: { onChange: fn() },
+  args: { onChange: fn(), onReplace: fn() },
   render: function Render(args) {
     const [{ value }, updateArgs] = useArgs<{ value: LayerState }>();
     return (
@@ -20,6 +20,10 @@ const meta = {
         onChange={(param, v) => {
           updateArgs({ value: { ...value, [param]: v } });
           args.onChange(param, v);
+        }}
+        onReplace={(next) => {
+          updateArgs({ value: next });
+          args.onReplace?.(next);
         }}
       />
     );

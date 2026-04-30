@@ -1,4 +1,6 @@
+import type { ChangeEvent } from 'react';
 import { IconRadioGroup } from '../controls/IconRadioGroup';
+import { PatchCode } from '../controls/PatchCode';
 import { Slider } from '../controls/Slider';
 import type {
   AmpEG,
@@ -6,11 +8,13 @@ import type {
   ModType,
   SoundSource,
 } from '../../types/layer';
+import { decodeLayer, encodeLayer } from '../../lib/patchCodec';
 import './Layer.css';
 
 export interface LayerProps {
   value: LayerState;
   onChange: <K extends keyof LayerState>(param: K, value: LayerState[K]) => void;
+  onReplace?: (next: LayerState) => void;
   label?: string;
   name?: string;
   disabled?: boolean;
@@ -39,13 +43,40 @@ const ENV_OPTIONS: { value: AmpEG; label: string }[] = [
 export function Layer({
   value,
   onChange,
+  onReplace,
   label = 'Layer',
   name = 'layer',
   disabled,
 }: LayerProps) {
+  const onCommentInput = (e: ChangeEvent<HTMLInputElement>) =>
+    onChange('comment', e.target.value);
+
   return (
     <section className="layer" aria-label={label}>
       <h3 className="layer__title">{label}</h3>
+
+      {onReplace && (
+        <>
+          <input
+            type="text"
+            className="layer__comment"
+            value={value.comment}
+            placeholder="comment"
+            disabled={disabled}
+            onChange={onCommentInput}
+          />
+          <PatchCode
+            value={encodeLayer(value)}
+            placeholder="vL1:..."
+            disabled={disabled}
+            onApply={(raw) => {
+              const parsed = decodeLayer(raw);
+              if (parsed) onReplace(parsed);
+              return parsed !== null;
+            }}
+          />
+        </>
+      )}
 
       <div className="layer__radios">
         <IconRadioGroup
