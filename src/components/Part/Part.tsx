@@ -79,6 +79,7 @@ export function Part({
           onChange={onLayer(1)}
           onReplace={onLayerReplace(1)}
           disabled={disabled}
+          pitchQuant={value.pitchQuant}
         />
         <Layer
           label="Layer 2"
@@ -87,6 +88,7 @@ export function Part({
           onChange={onLayer(2)}
           onReplace={onLayerReplace(2)}
           disabled={disabled}
+          pitchQuant={value.pitchQuant}
         />
       </div>
 

@@ -11,7 +11,7 @@
 // targeting see OscillatorSink's research, referenced in
 // doc/pitch-and-quantization.md.
 
-const NOTES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'] as const;
+const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
 
 const C0_PITCH = 26;
 const PITCH_PER_SEMITONE = 2;
@@ -19,21 +19,40 @@ const PITCH_PER_SEMITONE = 2;
 /**
  * Convert a device pitch value (0–255) to the label the LCD displays.
  *
- * Returns labels in the device's display format with the sharp marker
- * `⁰` and the truncated `<letter>⁰-` form for sharps in octave −1.
- * Pitch values < 2 clip to "C-1" (the device's display floor).
+ * Uses the device's display format with the sharp marker `⁰` and the
+ * truncated `<letter>⁰-` form for sharps in octave −1. Pitch values
+ * < 2 clip to "C-1" (the device's display floor).
+ *
+ * Use this when you need to mirror what the LCD shows; for the
+ * editor UI prefer `pitchToLabel`.
  */
-export function pitchToLabel(pitch: number): string {
-  if (pitch < 2) return 'C-1';
-  const semitonesFromC0 = Math.floor((pitch - C0_PITCH) / PITCH_PER_SEMITONE);
-  const octave = Math.floor(semitonesFromC0 / 12);
-  const noteIndex = ((semitonesFromC0 % 12) + 12) % 12;
-  const note = NOTES[noteIndex];
+export function pitchToLcdLabel(pitch: number): string {
+  const { note, octave } = pitchToNote(pitch);
   return formatLcd(note, octave);
 }
 
+/**
+ * Convert a device pitch value (0–255) to a human-readable label in
+ * scientific-pitch notation with ASCII `#` for sharps (`C#4`, `B3`).
+ *
+ * This is the form used by the editor UI. The device's actual LCD
+ * display uses a different form — see `pitchToLcdLabel`.
+ */
+export function pitchToLabel(pitch: number): string {
+  const { note, octave } = pitchToNote(pitch);
+  return `${note}${octave}`;
+}
+
+function pitchToNote(pitch: number): { note: string; octave: number } {
+  if (pitch < 2) return { note: 'C', octave: -1 };
+  const semitonesFromC0 = Math.floor((pitch - C0_PITCH) / PITCH_PER_SEMITONE);
+  const octave = Math.floor(semitonesFromC0 / 12);
+  const noteIndex = ((semitonesFromC0 % 12) + 12) % 12;
+  return { note: NOTES[noteIndex], octave };
+}
+
 function formatLcd(note: string, octave: number): string {
-  const sharp = note.endsWith('♯');
+  const sharp = note.endsWith('#');
   const letter = sharp ? note[0] + '⁰' : note;
   if (octave === -1 && sharp) {
     // <letter>⁰-1 doesn't fit the 3-char LCD note field; the device

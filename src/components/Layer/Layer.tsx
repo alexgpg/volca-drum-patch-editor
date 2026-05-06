@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { IconRadioGroup } from '../controls/IconRadioGroup';
 import { PatchCode } from '../controls/PatchCode';
+import { PitchPicker } from '../controls/PitchPicker';
 import { Slider } from '../controls/Slider';
 import type {
   AmpEG,
@@ -18,6 +19,7 @@ export interface LayerProps {
   label?: string;
   name?: string;
   disabled?: boolean;
+  pitchQuant?: boolean;
 }
 
 const SOUND_OPTIONS: { value: SoundSource; label: string }[] = [
@@ -47,6 +49,7 @@ export function Layer({
   label = 'Layer',
   name = 'layer',
   disabled,
+  pitchQuant,
 }: LayerProps) {
   const onCommentInput = (e: ChangeEvent<HTMLInputElement>) =>
     onChange('comment', e.target.value);
@@ -117,6 +120,14 @@ export function Layer({
           value={value.pitch}
           onChange={(v) => onChange('pitch', v)}
           disabled={disabled}
+          belowLabel="Note"
+          below={
+            <PitchPicker
+              value={value.pitch}
+              onChange={(v) => onChange('pitch', v)}
+              disabled={disabled || !pitchQuant}
+            />
+          }
         />
         <Slider
           label="EG Attack"

@@ -31,7 +31,6 @@
   border-radius: 4px;
   cursor: pointer;
   background: #fff;
-  user-select: none;
 }
 
 .icon-radio-group__option.is-checked {

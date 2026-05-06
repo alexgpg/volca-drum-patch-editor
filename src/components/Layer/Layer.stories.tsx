@@ -57,6 +57,15 @@ export const NoiseLayer: Story = {
   },
 };
 
+export const PitchQuantOn: Story = {
+  args: {
+    label: 'Layer 1',
+    name: 'p1l1-qpi',
+    value: DEFAULT_LAYER,
+    pitchQuant: true,
+  },
+};
+
 export const Disabled: Story = {
   args: {
     label: 'Layer 1',

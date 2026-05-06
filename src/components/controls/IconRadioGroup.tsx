@@ -1,6 +1,6 @@
 import './IconRadioGroup.css';
 
-export interface IconRadioOption<T extends string> {
+interface IconRadioOption<T extends string> {
   value: T;
   label: string;
   iconSrc?: string;

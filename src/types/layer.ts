@@ -15,8 +15,6 @@ export interface LayerState {
   comment: string;
 }
 
-export type LayerParam = keyof LayerState;
-
 export const DEFAULT_LAYER: LayerState = {
   soundSource: 'sine',
   modType: 'envelope',

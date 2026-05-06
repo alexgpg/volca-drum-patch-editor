@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { labelToPitch, pitchToLabel } from './devicePitchLabels';
+import { labelToPitch, pitchToLabel, pitchToLcdLabel } from './devicePitchLabels';
 
 // 128 reachable pitch values (every even 0..252 + 255), each with the
 // label the device's LCD shows. Lifted verbatim from
@@ -40,26 +40,60 @@ const EMPIRICAL: ReadonlyArray<readonly [number, string]> = [
   [252, 'F9'], [255, 'F⁰9'],
 ];
 
-describe('pitchToLabel', () => {
+describe('pitchToLcdLabel', () => {
   it.each(EMPIRICAL)('pitch %i → "%s"', (pitch, expected) => {
-    expect(pitchToLabel(pitch)).toBe(expected);
+    expect(pitchToLcdLabel(pitch)).toBe(expected);
   });
 
   it('clips pitch 0 and 1 to C-1', () => {
-    expect(pitchToLabel(0)).toBe('C-1');
-    expect(pitchToLabel(1)).toBe('C-1');
+    expect(pitchToLcdLabel(0)).toBe('C-1');
+    expect(pitchToLcdLabel(1)).toBe('C-1');
   });
 
   it('returns C-1 at the chromatic anchor (pitch 2)', () => {
-    expect(pitchToLabel(2)).toBe('C-1');
+    expect(pitchToLcdLabel(2)).toBe('C-1');
   });
 
   it('returns C0 at pitch 26 (zero anchor)', () => {
-    expect(pitchToLabel(26)).toBe('C0');
+    expect(pitchToLcdLabel(26)).toBe('C0');
   });
 
   it('returns F⁰9 at the top endpoint (pitch 255)', () => {
-    expect(pitchToLabel(255)).toBe('F⁰9');
+    expect(pitchToLcdLabel(255)).toBe('F⁰9');
+  });
+});
+
+describe('pitchToLabel (ASCII scientific form)', () => {
+  it.each([
+    [0, 'C-1'],
+    [2, 'C-1'],
+    [4, 'C#-1'],
+    [6, 'D-1'],
+    [24, 'B-1'],
+    [26, 'C0'],
+    [28, 'C#0'],
+    [50, 'C1'],
+    [122, 'C4'],
+    [124, 'C#4'],
+    [192, 'B6'],
+    [242, 'C9'],
+    [252, 'F9'],
+    [255, 'F#9'],
+  ])('pitch %i → "%s"', (pitch, expected) => {
+    expect(pitchToLabel(pitch)).toBe(expected);
+  });
+
+  it('round-trips: every CC value produces a label that parses back to the same display pitch', () => {
+    for (let cc = 0; cc <= 127; cc++) {
+      const displayPitch = cc === 127 ? 255 : cc * 2;
+      const label = pitchToLabel(displayPitch);
+      const parsed = labelToPitch(label);
+      // Parsed should be the canonical display pitch for this label;
+      // every reachable pitch produces a label whose canonical pitch
+      // is reachable.
+      expect(parsed).not.toBeNull();
+      expect(pitchToLabel(parsed!)).toBe(label);
+    }
   });
 });
 
@@ -67,10 +101,10 @@ describe('labelToPitch', () => {
   it.each(EMPIRICAL)('"%s" reverses to a pitch that re-labels to itself', (_pitch, label) => {
     // Some labels round-trip exactly to their own pitch; others map to
     // any pitch in the same chromatic slot. We require only that the
-    // label produces a valid pitch whose own label matches.
+    // label produces a valid pitch whose own LCD label matches.
     const got = labelToPitch(label);
     expect(got).not.toBeNull();
-    expect(pitchToLabel(got!)).toBe(label);
+    expect(pitchToLcdLabel(got!)).toBe(label);
   });
 
   it('accepts the conventional sharp symbol "♯"', () => {
