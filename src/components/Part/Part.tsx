@@ -36,9 +36,13 @@ export function Part({
     onChange({ kind: 'layer-replace', slot, value: next });
 
   return (
-    <section className="part" aria-label={label}>
-      <h2 className="part__title">{label}</h2>
+    <details className="part" open>
+      <summary className="part__title">
+        {label}
+        {value.comment && ` — ${value.comment}`}
+      </summary>
 
+      <div className="part__body">
       {onReplace && (
         <>
           <input
@@ -143,6 +147,7 @@ export function Part({
           />
         </div>
       </div>
-    </section>
+      </div>
+    </details>
   );
 }

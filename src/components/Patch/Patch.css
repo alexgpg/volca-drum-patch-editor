@@ -1,0 +1,12 @@
+.patch {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.patch > .part {
+  width: 100%;
+  max-width: none;
+}

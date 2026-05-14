@@ -1,7 +1,4 @@
 .part {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
   padding: 1rem;
   border: 1px solid #ccc;
   border-radius: 10px;
@@ -11,10 +8,22 @@
   box-sizing: border-box;
 }
 
+.part__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
 .part__title {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.part__title:hover {
+  color: #2b6cb0;
 }
 
 .part__comment {
