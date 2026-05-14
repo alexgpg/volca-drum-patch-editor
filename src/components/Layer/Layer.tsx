@@ -57,7 +57,10 @@ export function Layer({
 
   return (
     <section className="layer" aria-label={label}>
-      <h3 className="layer__title">{label}</h3>
+      <h3 className="layer__title">
+        {label}
+        {value.comment && ` — ${value.comment}`}
+      </h3>
 
       {onReplace && (
         <>
