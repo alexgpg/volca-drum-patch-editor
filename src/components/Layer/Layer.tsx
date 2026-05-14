@@ -9,6 +9,7 @@ import type {
   ModType,
   SoundSource,
 } from '../../types/layer';
+import { ccToDisplayPitch, displayPitchToCcSnap } from '../../lib/devicePitch';
 import { decodeLayer, encodeLayer } from '../../lib/patchCodec';
 import './Layer.css';
 
@@ -117,8 +118,11 @@ export function Layer({
         />
         <Slider
           label="Pitch"
-          value={value.pitch}
-          onChange={(v) => onChange('pitch', v)}
+          min={0}
+          max={255}
+          step={2}
+          value={ccToDisplayPitch(value.pitch)}
+          onChange={(d) => onChange('pitch', displayPitchToCcSnap(d))}
           disabled={disabled}
           belowLabel="Note"
           below={

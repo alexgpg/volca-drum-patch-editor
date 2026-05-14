@@ -1,5 +1,6 @@
 import type { KeyboardEvent } from 'react';
 import { useEffect, useId, useRef, useState } from 'react';
+import { ccToDisplayPitch, displayPitchToCc } from '../../lib/devicePitch';
 import { labelToPitch, pitchToLabel } from '../../lib/devicePitchLabels';
 import './PitchPicker.css';
 
@@ -11,17 +12,6 @@ export interface PitchPickerProps {
 
 const MIN = 0;
 const MAX = 127;
-
-function ccToDisplayPitch(cc: number): number {
-  return cc === 127 ? 255 : cc * 2;
-}
-
-function displayPitchToCc(displayPitch: number): number | null {
-  if (displayPitch === 255) return 127;
-  if (displayPitch < 0 || displayPitch > 254) return null;
-  if (displayPitch % 2 !== 0) return null;
-  return displayPitch / 2;
-}
 
 const ALL_LABELS: string[] = Array.from(
   { length: 128 },
