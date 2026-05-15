@@ -1,0 +1,13 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.app__midi {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0.75rem 1rem 0;
+  background: linear-gradient(to bottom, #fff 0%, #fff 70%, rgba(255, 255, 255, 0));
+}
