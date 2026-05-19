@@ -9,6 +9,9 @@ export function applyPartChange(part: PartState, change: PartChange): PartState 
   }
 
   if (change.kind === 'layer-replace') {
+    if (part.linked) {
+      return { ...part, layer1: change.value, layer2: change.value };
+    }
     const slotKey = change.slot === 1 ? 'layer1' : 'layer2';
     return { ...part, [slotKey]: change.value };
   }

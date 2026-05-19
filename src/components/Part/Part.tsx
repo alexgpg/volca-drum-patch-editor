@@ -77,7 +77,7 @@ export function Part({
 
       <div className="part__layers">
         <Layer
-          label="Layer 1"
+          label={value.linked ? 'Layer 1-2' : 'Layer 1'}
           name={`${name}-l1`}
           value={value.layer1}
           onChange={onLayer(1)}
@@ -91,7 +91,7 @@ export function Part({
           value={value.layer2}
           onChange={onLayer(2)}
           onReplace={onLayerReplace(2)}
-          disabled={disabled}
+          disabled={disabled || value.linked}
           pitchQuant={value.pitchQuant}
         />
       </div>

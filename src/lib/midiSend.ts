@@ -92,6 +92,7 @@ export function sendPartChange(
   }
 
   if (change.kind === 'layer-replace') {
-    sendLayer(output, partIndex, change.slot, change.value);
+    const slot: LayerSlot = nextPart.linked ? 'both' : change.slot;
+    sendLayer(output, partIndex, slot, change.value);
   }
 }

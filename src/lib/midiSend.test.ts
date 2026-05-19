@@ -237,4 +237,35 @@ describe('sendPartChange — layer-replace', () => {
       { status: 0xb1, cc: 46, value: 20 },
     ]);
   });
+
+  it('uses the "both" slot CCs when linked', () => {
+    const { sent, output } = captureOutput();
+    const layer: LayerState = {
+      soundSource: 'saw',
+      modType: 'lfo',
+      ampEG: 'multi',
+      level: 100,
+      pitch: 50,
+      egAttack: 10,
+      egRelease: 80,
+      modAmount: 64,
+      modRate: 20,
+      comment: '',
+    };
+    sendPartChange(
+      output,
+      2,
+      { kind: 'layer-replace', slot: 1, value: layer },
+      { ...DEFAULT_PART, linked: true, layer1: layer, layer2: layer },
+    );
+    expect(sent).toEqual([
+      { status: 0xb1, cc: 16, value: 26 + 9 + 6 },
+      { status: 0xb1, cc: 19, value: 100 },
+      { status: 0xb1, cc: 28, value: 50 },
+      { status: 0xb1, cc: 22, value: 10 },
+      { status: 0xb1, cc: 25, value: 80 },
+      { status: 0xb1, cc: 31, value: 64 },
+      { status: 0xb1, cc: 48, value: 20 },
+    ]);
+  });
 });
