@@ -2,6 +2,7 @@ import type { ChangeEvent } from 'react';
 import { IconRadioGroup } from '../controls/IconRadioGroup';
 import { PatchCode } from '../controls/PatchCode';
 import { PitchPicker } from '../controls/PitchPicker';
+import { ScaledSlider } from '../controls/ScaledSlider';
 import { Slider } from '../controls/Slider';
 import type {
   AmpEG,
@@ -113,12 +114,7 @@ export function Layer({
       </div>
 
       <div className="layer__sliders">
-        <Slider
-          label="Level"
-          value={value.level}
-          onChange={(v) => onChange('level', v)}
-          disabled={disabled}
-        />
+        <ScaledSlider param="level" cc={value.level} onCc={(v) => onChange('level', v)} disabled={disabled} />
         <Slider
           label="Pitch"
           min={0}
@@ -136,30 +132,10 @@ export function Layer({
             />
           }
         />
-        <Slider
-          label="EG Attack"
-          value={value.egAttack}
-          onChange={(v) => onChange('egAttack', v)}
-          disabled={disabled}
-        />
-        <Slider
-          label="EG Release"
-          value={value.egRelease}
-          onChange={(v) => onChange('egRelease', v)}
-          disabled={disabled}
-        />
-        <Slider
-          label="Mod Amount"
-          value={value.modAmount}
-          onChange={(v) => onChange('modAmount', v)}
-          disabled={disabled}
-        />
-        <Slider
-          label="Mod Rate"
-          value={value.modRate}
-          onChange={(v) => onChange('modRate', v)}
-          disabled={disabled}
-        />
+        <ScaledSlider param="egAttack" cc={value.egAttack} onCc={(v) => onChange('egAttack', v)} disabled={disabled} />
+        <ScaledSlider param="egRelease" cc={value.egRelease} onCc={(v) => onChange('egRelease', v)} disabled={disabled} />
+        <ScaledSlider param="modAmount" cc={value.modAmount} onCc={(v) => onChange('modAmount', v)} disabled={disabled} />
+        <ScaledSlider param="modRate" cc={value.modRate} onCc={(v) => onChange('modRate', v)} disabled={disabled} />
       </div>
     </section>
   );

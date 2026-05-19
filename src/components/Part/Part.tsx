@@ -1,6 +1,6 @@
 import { Layer } from '../Layer/Layer';
 import { PatchCode } from '../controls/PatchCode';
-import { Slider } from '../controls/Slider';
+import { ScaledSlider } from '../controls/ScaledSlider';
 import { Toggle } from '../controls/Toggle';
 import type { LayerState } from '../../types/layer';
 import type { PartChange, PartParam, PartState } from '../../types/part';
@@ -99,18 +99,8 @@ export function Part({
       <div className="part__header">
         <div className="part__group">
           <h3 className="part__group-label">Output</h3>
-          <Slider
-            label="Pan"
-            value={value.pan}
-            onChange={(v) => onPart('pan', v)}
-            disabled={disabled}
-          />
-          <Slider
-            label="Send"
-            value={value.send}
-            onChange={(v) => onPart('send', v)}
-            disabled={disabled}
-          />
+          <ScaledSlider param="pan" cc={value.pan} onCc={(v) => onPart('pan', v)} disabled={disabled} />
+          <ScaledSlider param="send" cc={value.send} onCc={(v) => onPart('send', v)} disabled={disabled} />
           <Toggle
             label="Pitch Quantization"
             value={value.pitchQuant}
@@ -121,30 +111,10 @@ export function Part({
 
         <div className="part__group">
           <h3 className="part__group-label">Wave folder</h3>
-          <Slider
-            label="Drive"
-            value={value.drive}
-            onChange={(v) => onPart('drive', v)}
-            disabled={disabled}
-          />
-          <Slider
-            label="Bit Reduction"
-            value={value.bitReduction}
-            onChange={(v) => onPart('bitReduction', v)}
-            disabled={disabled}
-          />
-          <Slider
-            label="Fold"
-            value={value.fold}
-            onChange={(v) => onPart('fold', v)}
-            disabled={disabled}
-          />
-          <Slider
-            label="Dry Gain"
-            value={value.dryGain}
-            onChange={(v) => onPart('dryGain', v)}
-            disabled={disabled}
-          />
+          <ScaledSlider param="drive" cc={value.drive} onCc={(v) => onPart('drive', v)} disabled={disabled} />
+          <ScaledSlider param="bitReduction" cc={value.bitReduction} onCc={(v) => onPart('bitReduction', v)} disabled={disabled} />
+          <ScaledSlider param="fold" cc={value.fold} onCc={(v) => onPart('fold', v)} disabled={disabled} />
+          <ScaledSlider param="dryGain" cc={value.dryGain} onCc={(v) => onPart('dryGain', v)} disabled={disabled} />
         </div>
       </div>
       </div>

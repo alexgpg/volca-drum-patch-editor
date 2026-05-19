@@ -1,5 +1,7 @@
 import type { AmpEG, LayerState, ModType, SoundSource } from '../types/layer';
 import type { PartState } from '../types/part';
+import { ccToDisplayPitch, displayPitchToCcSnap } from './devicePitch';
+import { ccToLcd, isValidLcd, lcdToCcSnap } from './deviceScale';
 
 // The single-letter codes below overlap across maps (`l` = lfo or
 // noiseLP; `e` = envelope or exp). Disambiguation is positional only:
@@ -30,8 +32,8 @@ const ENV_FROM: Record<string, AmpEG> = {
 const LAYER_PREFIX = 'vL1:';
 const PART_PREFIX = 'vP1:';
 
-function inMidi(n: number): boolean {
-  return Number.isInteger(n) && n >= 0 && n <= 127;
+function inPitchLcd(n: number): boolean {
+  return Number.isInteger(n) && n >= 0 && n <= 255;
 }
 
 function inBool(n: number): boolean {
@@ -54,7 +56,12 @@ function layerCore(l: LayerState): string {
     SOURCE_CODE[l.soundSource],
     MOD_CODE[l.modType],
     ENV_CODE[l.ampEG],
-    l.level, l.pitch, l.egAttack, l.egRelease, l.modAmount, l.modRate,
+    ccToLcd('level', l.level),
+    ccToDisplayPitch(l.pitch),
+    ccToLcd('egAttack', l.egAttack),
+    ccToLcd('egRelease', l.egRelease),
+    ccToLcd('modAmount', l.modAmount),
+    ccToLcd('modRate', l.modRate),
   ].join(',');
 }
 
@@ -74,18 +81,24 @@ function parseLayerSection(section: string): LayerState | null {
   const [sc, mc, ec, ...rest] = parts;
   if (!(sc in SOURCE_FROM) || !(mc in MOD_FROM) || !(ec in ENV_FROM)) return null;
   const nums = rest.map(Number);
-  if (!nums.every(inMidi)) return null;
+  if (!nums.every(Number.isInteger)) return null;
+  if (!isValidLcd('level', nums[0])) return null;
+  if (!inPitchLcd(nums[1])) return null;
+  if (!isValidLcd('egAttack', nums[2])) return null;
+  if (!isValidLcd('egRelease', nums[3])) return null;
+  if (!isValidLcd('modAmount', nums[4])) return null;
+  if (!isValidLcd('modRate', nums[5])) return null;
 
   return {
     soundSource: SOURCE_FROM[sc],
     modType: MOD_FROM[mc],
     ampEG: ENV_FROM[ec],
-    level: nums[0],
-    pitch: nums[1],
-    egAttack: nums[2],
-    egRelease: nums[3],
-    modAmount: nums[4],
-    modRate: nums[5],
+    level: lcdToCcSnap('level', nums[0]),
+    pitch: displayPitchToCcSnap(nums[1]),
+    egAttack: lcdToCcSnap('egAttack', nums[2]),
+    egRelease: lcdToCcSnap('egRelease', nums[3]),
+    modAmount: lcdToCcSnap('modAmount', nums[4]),
+    modRate: lcdToCcSnap('modRate', nums[5]),
     comment,
   };
 }
@@ -106,8 +119,13 @@ export function decodeLayer(s: string): LayerState | null {
 
 export function encodePart(p: PartState): string {
   const head = [
-    p.pan, p.send, p.pitchQuant ? 1 : 0,
-    p.drive, p.bitReduction, p.fold, p.dryGain,
+    ccToLcd('pan', p.pan),
+    ccToLcd('send', p.send),
+    p.pitchQuant ? 1 : 0,
+    ccToLcd('drive', p.drive),
+    ccToLcd('bitReduction', p.bitReduction),
+    ccToLcd('fold', p.fold),
+    ccToLcd('dryGain', p.dryGain),
     p.linked ? 1 : 0,
   ].join(',');
   const main = `${head};${layerSection(p.layer1)};${layerSection(p.layer2)}`;
@@ -136,7 +154,12 @@ export function decodePart(s: string): PartState | null {
   const nums = headParts.map(Number);
   if (!nums.every(Number.isInteger)) return null;
   const [pan, send, pq, drive, bitRed, fold, dryGain, linked] = nums;
-  if (![pan, send, drive, bitRed, fold, dryGain].every(inMidi)) return null;
+  if (!isValidLcd('pan', pan)) return null;
+  if (!isValidLcd('send', send)) return null;
+  if (!isValidLcd('drive', drive)) return null;
+  if (!isValidLcd('bitReduction', bitRed)) return null;
+  if (!isValidLcd('fold', fold)) return null;
+  if (!isValidLcd('dryGain', dryGain)) return null;
   if (!inBool(pq) || !inBool(linked)) return null;
 
   const layer1 = parseLayerSection(l1Section);
@@ -146,13 +169,13 @@ export function decodePart(s: string): PartState | null {
   return {
     layer1,
     layer2,
-    pan,
-    send,
+    pan: lcdToCcSnap('pan', pan),
+    send: lcdToCcSnap('send', send),
     pitchQuant: pq === 1,
-    drive,
-    bitReduction: bitRed,
-    fold,
-    dryGain,
+    drive: lcdToCcSnap('drive', drive),
+    bitReduction: lcdToCcSnap('bitReduction', bitRed),
+    fold: lcdToCcSnap('fold', fold),
+    dryGain: lcdToCcSnap('dryGain', dryGain),
     linked: linked === 1,
     comment: partComment,
   };
