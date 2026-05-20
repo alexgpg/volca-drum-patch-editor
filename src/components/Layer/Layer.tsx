@@ -132,10 +132,10 @@ export function Layer({
             />
           }
         />
-        <ScaledSlider param="egAttack" cc={value.egAttack} onCc={(v) => onChange('egAttack', v)} disabled={disabled} />
-        <ScaledSlider param="egRelease" cc={value.egRelease} onCc={(v) => onChange('egRelease', v)} disabled={disabled} />
         <ScaledSlider param="modAmount" cc={value.modAmount} onCc={(v) => onChange('modAmount', v)} disabled={disabled} />
         <ScaledSlider param="modRate" cc={value.modRate} onCc={(v) => onChange('modRate', v)} disabled={disabled} />
+        <ScaledSlider param="egAttack" cc={value.egAttack} onCc={(v) => onChange('egAttack', v)} disabled={disabled} />
+        <ScaledSlider param="egRelease" cc={value.egRelease} onCc={(v) => onChange('egRelease', v)} disabled={disabled} />
       </div>
     </section>
   );
