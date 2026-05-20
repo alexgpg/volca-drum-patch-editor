@@ -4,6 +4,15 @@ A web-based patch editor for the [Korg Volca Drum](https://www.korg.com/products
 
 Inspired by [synthmata/volca-drum](https://synthmata.github.io/volca-drum/).
 
+## Features
+
+- Edit all six parts and both layers — every per-layer and per-part parameter the device exposes over MIDI.
+- Live MIDI dispatch: pick an output, toggle Live on, and edits stream to the device as you move sliders.
+- Link Layers per part — one set of controls drives both layers, using the device's "both layers" CCs.
+- Shareable patch codes for individual layers and whole parts, with editable comments and one-click copy.
+- LCD-accurate display values throughout the editor, matching what the hardware shows on its screen.
+- Pitch Quantization toggle with a chromatic pitch picker when enabled.
+
 ## Requirements
 
 - A browser with [Web MIDI API](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API) support (Chrome, Edge, Opera).
