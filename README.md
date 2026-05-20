@@ -18,13 +18,22 @@ pnpm dev
 
 Built with React, TypeScript, and Vite.
 
+## Storybook
+
+Component stories are available for previewing UI in isolation — useful for checking individual controls and layouts without wiring up the full editor.
+
+```sh
+pnpm storybook
+```
+
+Opens at http://localhost:6006.
+
 ## Scripts
 
 - `pnpm dev` — start the dev server
 - `pnpm build` — type-check and build for production
 - `pnpm lint` — run ESLint
+- `pnpm test` — run the unit test suite
 - `pnpm preview` — preview the production build
-
-## TODO
-
-- Linked-layers MIDI dispatch optimisation: when `PartState.linked` is true, send one "both layers" CC (16, 19, 22, 25, 28, 31, 48 — see `doc/midi.md`) instead of two per-layer CCs. Purely a wire-side change in the future MIDI dispatch hook; the UI mirroring is already in place.
+- `pnpm storybook` — start Storybook on port 6006
+- `pnpm build-storybook` — build a static Storybook bundle
