@@ -27,7 +27,8 @@ export type PartChange =
       param: keyof LayerState;
       value: LayerState[keyof LayerState];
     }
-  | { kind: 'layer-replace'; slot: 1 | 2; value: LayerState };
+  | { kind: 'layer-replace'; slot: 1 | 2; value: LayerState }
+  | { kind: 'part-replace'; value: PartState };
 
 export const DEFAULT_PART: PartState = {
   layer1: DEFAULT_LAYER,

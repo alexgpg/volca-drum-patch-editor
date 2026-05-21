@@ -47,12 +47,33 @@ function sendLayer(output: MIDIOutput, partIndex: PartIndex, slot: LayerSlot, la
   sendCC(output, partIndex, layerSliderCC(slot, 'modRate'), layer.modRate);
 }
 
+function sendPart(output: MIDIOutput, partIndex: PartIndex, part: PartState) {
+  sendCC(output, partIndex, PART_CC.pan, part.pan);
+  sendCC(output, partIndex, PART_CC.send, part.send);
+  sendCC(output, partIndex, PART_CC.drive, part.drive);
+  sendCC(output, partIndex, PART_CC.bitReduction, part.bitReduction);
+  sendCC(output, partIndex, PART_CC.fold, part.fold);
+  sendCC(output, partIndex, PART_CC.dryGain, part.dryGain);
+  sendCC(output, partIndex, PITCH_QUANT_CC, part.pitchQuant ? 127 : 0);
+  if (part.linked) {
+    sendLayer(output, partIndex, 'both', part.layer1);
+    return;
+  }
+  sendLayer(output, partIndex, 1, part.layer1);
+  sendLayer(output, partIndex, 2, part.layer2);
+}
+
 export function sendPartChange(
   output: MIDIOutput,
   partIndex: PartIndex,
   change: PartChange,
   nextPart: PartState,
 ) {
+  if (change.kind === 'part-replace') {
+    sendPart(output, partIndex, change.value);
+    return;
+  }
+
   if (change.kind === 'part') {
     if (change.param === 'linked' && change.value === true) {
       // applyPartChange mirrored layer1 into layer2 in state; bring the

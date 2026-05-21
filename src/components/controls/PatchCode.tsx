@@ -15,6 +15,10 @@ export function PatchCode({ value, onApply, placeholder, disabled }: PatchCodePr
   const [justCopied, setJustCopied] = useState(false);
   const copyTimer = useRef<number | undefined>(undefined);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Escape resets draft asynchronously and then blurs; without this
+  // flag the blur-driven commit would re-fire onApply with the stale
+  // typed text instead of cancelling.
+  const skipNextBlur = useRef(false);
 
   if (value !== lastValue) {
     setLastValue(value);
@@ -36,13 +40,21 @@ export function PatchCode({ value, onApply, placeholder, disabled }: PatchCodePr
     [],
   );
 
-  const commit = () => {
+  const apply = (text: string) => {
+    const ok = onApply(text);
+    setInvalid(!ok);
+  };
+
+  const commitOnBlur = () => {
+    if (skipNextBlur.current) {
+      skipNextBlur.current = false;
+      return;
+    }
     if (draft === value) {
       setInvalid(false);
       return;
     }
-    const ok = onApply(draft);
-    setInvalid(!ok);
+    apply(draft);
   };
 
   const copy = async () => {
@@ -71,14 +83,23 @@ export function PatchCode({ value, onApply, placeholder, disabled }: PatchCodePr
         autoCapitalize="off"
         disabled={disabled}
         onChange={(e) => setDraft(e.target.value)}
-        onBlur={commit}
+        onBlur={commitOnBlur}
+        onPaste={() => {
+          // The browser inserts the pasted text into the textarea
+          // after onPaste returns; defer to read the post-paste value.
+          window.setTimeout(() => {
+            const el = textareaRef.current;
+            if (el) apply(el.value);
+          }, 0);
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            e.currentTarget.blur();
+            apply(draft);
           } else if (e.key === 'Escape') {
             setDraft(value);
             setInvalid(false);
+            skipNextBlur.current = true;
             e.currentTarget.blur();
           }
         }}

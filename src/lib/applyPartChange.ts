@@ -1,6 +1,10 @@
 import type { PartChange, PartState } from '../types/part';
 
 export function applyPartChange(part: PartState, change: PartChange): PartState {
+  if (change.kind === 'part-replace') {
+    return change.value;
+  }
+
   if (change.kind === 'part') {
     if (change.param === 'linked' && change.value === true) {
       return { ...part, linked: true, layer2: part.layer1 };

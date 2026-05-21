@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_LAYER, type LayerState } from '../types/layer';
-import { DEFAULT_PART } from '../types/part';
+import { DEFAULT_PART, type PartState } from '../types/part';
 import { sendPartChange } from './midiSend';
 
 interface SentMessage {
@@ -266,6 +266,110 @@ describe('sendPartChange — layer-replace', () => {
       { status: 0xb1, cc: 25, value: 80 },
       { status: 0xb1, cc: 31, value: 64 },
       { status: 0xb1, cc: 48, value: 20 },
+    ]);
+  });
+});
+
+describe('sendPartChange — part-replace', () => {
+  it('dumps part sliders, pitch quant and both layers on the part channel', () => {
+    const { sent, output } = captureOutput();
+    const layer1: LayerState = {
+      soundSource: 'saw',
+      modType: 'lfo',
+      ampEG: 'exp',
+      level: 100,
+      pitch: 50,
+      egAttack: 10,
+      egRelease: 80,
+      modAmount: 64,
+      modRate: 20,
+      comment: '',
+    };
+    const layer2: LayerState = {
+      soundSource: 'noiseHP',
+      modType: 'random',
+      ampEG: 'multi',
+      level: 90,
+      pitch: 40,
+      egAttack: 5,
+      egRelease: 70,
+      modAmount: 50,
+      modRate: 30,
+      comment: '',
+    };
+    const part: PartState = {
+      layer1,
+      layer2,
+      pan: 80,
+      send: 20,
+      pitchQuant: true,
+      drive: 30,
+      bitReduction: 40,
+      fold: 50,
+      dryGain: 60,
+      linked: false,
+      comment: 'kick',
+    };
+    sendPartChange(output, 3, { kind: 'part-replace', value: part }, part);
+    expect(sent).toEqual([
+      { status: 0xb2, cc: 10, value: 80 },
+      { status: 0xb2, cc: 103, value: 20 },
+      { status: 0xb2, cc: 51, value: 30 },
+      { status: 0xb2, cc: 49, value: 40 },
+      { status: 0xb2, cc: 50, value: 50 },
+      { status: 0xb2, cc: 52, value: 60 },
+      { status: 0xb2, cc: 53, value: 127 },
+      { status: 0xb2, cc: 14, value: 26 + 9 + 3 },
+      { status: 0xb2, cc: 17, value: 100 },
+      { status: 0xb2, cc: 26, value: 50 },
+      { status: 0xb2, cc: 20, value: 10 },
+      { status: 0xb2, cc: 23, value: 80 },
+      { status: 0xb2, cc: 29, value: 64 },
+      { status: 0xb2, cc: 46, value: 20 },
+      { status: 0xb2, cc: 15, value: 52 + 18 + 6 },
+      { status: 0xb2, cc: 18, value: 90 },
+      { status: 0xb2, cc: 27, value: 40 },
+      { status: 0xb2, cc: 21, value: 5 },
+      { status: 0xb2, cc: 24, value: 70 },
+      { status: 0xb2, cc: 30, value: 50 },
+      { status: 0xb2, cc: 47, value: 30 },
+    ]);
+  });
+
+  it('uses "both" layer CCs when linked and skips layer 2', () => {
+    const { sent, output } = captureOutput();
+    const layer: LayerState = {
+      ...DEFAULT_LAYER,
+      soundSource: 'saw',
+      level: 110,
+      pitch: 33,
+      egAttack: 7,
+      egRelease: 90,
+      modAmount: 70,
+      modRate: 11,
+    };
+    const part: PartState = {
+      ...DEFAULT_PART,
+      linked: true,
+      layer1: layer,
+      layer2: layer,
+    };
+    sendPartChange(output, 1, { kind: 'part-replace', value: part }, part);
+    expect(sent).toEqual([
+      { status: 0xb0, cc: 10, value: DEFAULT_PART.pan },
+      { status: 0xb0, cc: 103, value: DEFAULT_PART.send },
+      { status: 0xb0, cc: 51, value: DEFAULT_PART.drive },
+      { status: 0xb0, cc: 49, value: DEFAULT_PART.bitReduction },
+      { status: 0xb0, cc: 50, value: DEFAULT_PART.fold },
+      { status: 0xb0, cc: 52, value: DEFAULT_PART.dryGain },
+      { status: 0xb0, cc: 53, value: 0 },
+      { status: 0xb0, cc: 16, value: 26 },
+      { status: 0xb0, cc: 19, value: 110 },
+      { status: 0xb0, cc: 28, value: 33 },
+      { status: 0xb0, cc: 22, value: 7 },
+      { status: 0xb0, cc: 25, value: 90 },
+      { status: 0xb0, cc: 31, value: 70 },
+      { status: 0xb0, cc: 48, value: 11 },
     ]);
   });
 });

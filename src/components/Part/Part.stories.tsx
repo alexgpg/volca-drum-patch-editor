@@ -3,6 +3,7 @@ import { useArgs } from 'storybook/preview-api';
 import { fn } from 'storybook/test';
 
 import { Part } from './Part';
+import { applyPartChange } from '../../lib/applyPartChange';
 import { DEFAULT_PART, type PartState } from '../../types/part';
 import { DEFAULT_LAYER } from '../../types/layer';
 
@@ -11,7 +12,7 @@ const meta = {
   component: Part,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
-  args: { onChange: fn(), onReplace: fn() },
+  args: { onChange: fn() },
   render: function Render(args) {
     const [{ value }, updateArgs] = useArgs<{ value: PartState }>();
     return (
@@ -19,41 +20,8 @@ const meta = {
         {...args}
         value={value}
         onChange={(change) => {
-          if (change.kind === 'part') {
-            if (change.param === 'linked' && change.value === true) {
-              updateArgs({
-                value: { ...value, linked: true, layer2: value.layer1 },
-              });
-            } else {
-              updateArgs({
-                value: { ...value, [change.param]: change.value },
-              });
-            }
-          } else if (change.kind === 'layer-replace') {
-            const slotKey = change.slot === 1 ? 'layer1' : 'layer2';
-            updateArgs({ value: { ...value, [slotKey]: change.value } });
-          } else if (value.linked) {
-            updateArgs({
-              value: {
-                ...value,
-                layer1: { ...value.layer1, [change.param]: change.value },
-                layer2: { ...value.layer2, [change.param]: change.value },
-              },
-            });
-          } else {
-            const slotKey = change.slot === 1 ? 'layer1' : 'layer2';
-            updateArgs({
-              value: {
-                ...value,
-                [slotKey]: { ...value[slotKey], [change.param]: change.value },
-              },
-            });
-          }
+          updateArgs({ value: applyPartChange(value, change) });
           args.onChange(change);
-        }}
-        onReplace={(next) => {
-          updateArgs({ value: next });
-          args.onReplace?.(next);
         }}
       />
     );

@@ -10,7 +10,6 @@ import './Part.css';
 export interface PartProps {
   value: PartState;
   onChange: (change: PartChange) => void;
-  onReplace?: (next: PartState) => void;
   label?: string;
   name?: string;
   disabled?: boolean;
@@ -19,7 +18,6 @@ export interface PartProps {
 export function Part({
   value,
   onChange,
-  onReplace,
   label = 'Part',
   name = 'part',
   disabled,
@@ -43,80 +41,76 @@ export function Part({
       </summary>
 
       <div className="part__body">
-      {onReplace && (
-        <>
-          <input
-            type="text"
-            className="part__comment"
-            value={value.comment}
-            placeholder="comment"
-            disabled={disabled}
-            onChange={(e) => onPart('comment', e.target.value)}
-          />
-          <PatchCode
-            value={encodePart(value)}
-            placeholder="vP1:..."
-            disabled={disabled}
-            onApply={(raw) => {
-              const parsed = decodePart(raw);
-              if (parsed) onReplace(parsed);
-              return parsed !== null;
-            }}
-          />
-        </>
-      )}
-
-      <div className="part__link">
-        <Toggle
-          label="Link Layers"
-          value={value.linked}
-          onChange={(v) => onPart('linked', v)}
+        <input
+          type="text"
+          className="part__comment"
+          value={value.comment}
+          placeholder="comment"
           disabled={disabled}
+          onChange={(e) => onPart('comment', e.target.value)}
         />
-      </div>
-
-      <div className="part__layers">
-        <Layer
-          label={value.linked ? 'Layer 1-2' : 'Layer 1'}
-          name={`${name}-l1`}
-          value={value.layer1}
-          onChange={onLayer(1)}
-          onReplace={onLayerReplace(1)}
+        <PatchCode
+          value={encodePart(value)}
+          placeholder="vP1:..."
           disabled={disabled}
-          pitchQuant={value.pitchQuant}
+          onApply={(raw) => {
+            const parsed = decodePart(raw);
+            if (parsed) onChange({ kind: 'part-replace', value: parsed });
+            return parsed !== null;
+          }}
         />
-        <Layer
-          label="Layer 2"
-          name={`${name}-l2`}
-          value={value.layer2}
-          onChange={onLayer(2)}
-          onReplace={onLayerReplace(2)}
-          disabled={disabled || value.linked}
-          pitchQuant={value.pitchQuant}
-        />
-      </div>
 
-      <div className="part__header">
-        <div className="part__group">
-          <h3 className="part__group-label">Output</h3>
-          <ScaledSlider param="pan" cc={value.pan} onCc={(v) => onPart('pan', v)} disabled={disabled} />
-          <ScaledSlider param="send" cc={value.send} onCc={(v) => onPart('send', v)} disabled={disabled} />
+        <div className="part__link">
           <Toggle
-            label="Pitch Quantization"
-            value={value.pitchQuant}
-            onChange={(v) => onPart('pitchQuant', v)}
+            label="Link Layers"
+            value={value.linked}
+            onChange={(v) => onPart('linked', v)}
             disabled={disabled}
           />
         </div>
 
-        <div className="part__group">
-          <h3 className="part__group-label">Wave folder</h3>
-          <ScaledSlider param="drive" cc={value.drive} onCc={(v) => onPart('drive', v)} disabled={disabled} />
-          <ScaledSlider param="bitReduction" cc={value.bitReduction} onCc={(v) => onPart('bitReduction', v)} disabled={disabled} />
-          <ScaledSlider param="fold" cc={value.fold} onCc={(v) => onPart('fold', v)} disabled={disabled} />
-          <ScaledSlider param="dryGain" cc={value.dryGain} onCc={(v) => onPart('dryGain', v)} disabled={disabled} />
+        <div className="part__layers">
+          <Layer
+            label={value.linked ? 'Layer 1-2' : 'Layer 1'}
+            name={`${name}-l1`}
+            value={value.layer1}
+            onChange={onLayer(1)}
+            onReplace={onLayerReplace(1)}
+            disabled={disabled}
+            pitchQuant={value.pitchQuant}
+          />
+          <Layer
+            label="Layer 2"
+            name={`${name}-l2`}
+            value={value.layer2}
+            onChange={onLayer(2)}
+            onReplace={onLayerReplace(2)}
+            disabled={disabled || value.linked}
+            pitchQuant={value.pitchQuant}
+          />
         </div>
-      </div>
+
+        <div className="part__header">
+          <div className="part__group">
+            <h3 className="part__group-label">Output</h3>
+            <ScaledSlider param="pan" cc={value.pan} onCc={(v) => onPart('pan', v)} disabled={disabled} />
+            <ScaledSlider param="send" cc={value.send} onCc={(v) => onPart('send', v)} disabled={disabled} />
+            <Toggle
+              label="Pitch Quantization"
+              value={value.pitchQuant}
+              onChange={(v) => onPart('pitchQuant', v)}
+              disabled={disabled}
+            />
+          </div>
+
+          <div className="part__group">
+            <h3 className="part__group-label">Wave folder</h3>
+            <ScaledSlider param="drive" cc={value.drive} onCc={(v) => onPart('drive', v)} disabled={disabled} />
+            <ScaledSlider param="bitReduction" cc={value.bitReduction} onCc={(v) => onPart('bitReduction', v)} disabled={disabled} />
+            <ScaledSlider param="fold" cc={value.fold} onCc={(v) => onPart('fold', v)} disabled={disabled} />
+            <ScaledSlider param="dryGain" cc={value.dryGain} onCc={(v) => onPart('dryGain', v)} disabled={disabled} />
+          </div>
+        </div>
       </div>
     </details>
   );

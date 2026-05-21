@@ -45,21 +45,6 @@ function App() {
             return next;
           });
         }}
-        onPartReplace={(partIndex, nextPart) => {
-          setPatch((prev) => {
-            const i = partIndex - 1;
-            const next = [...prev] as [
-              PatchState[0],
-              PatchState[1],
-              PatchState[2],
-              PatchState[3],
-              PatchState[4],
-              PatchState[5],
-            ];
-            next[i] = nextPart;
-            return next;
-          });
-        }}
       />
     </div>
   );

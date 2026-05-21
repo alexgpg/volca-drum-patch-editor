@@ -22,7 +22,7 @@ const meta = {
   component: Patch,
   parameters: { layout: 'fullscreen' },
   tags: ['autodocs'],
-  args: { onChange: fn(), onPartReplace: fn() },
+  args: { onChange: fn() },
   render: function Render(args) {
     const [{ value }, updateArgs] = useArgs<{ value: PatchState }>();
     // Mirror value in a ref so rapid-fire onChange calls (e.g. fast
@@ -41,14 +41,6 @@ const meta = {
           ref.current = next;
           updateArgs({ value: next });
           args.onChange(c);
-        }}
-        onPartReplace={(partIndex, nextPart) => {
-          const i = partIndex - 1;
-          const next = [...ref.current] as Tuple6;
-          next[i] = nextPart;
-          ref.current = next;
-          updateArgs({ value: next });
-          args.onPartReplace?.(partIndex, nextPart);
         }}
       />
     );
