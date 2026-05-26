@@ -1,15 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MidiDevicePicker } from './components/MidiDevicePicker/MidiDevicePicker';
 import { Patch } from './components/Patch/Patch';
 import { applyPartChange } from './lib/applyPartChange';
 import { sendPartChange } from './lib/midiSend';
+import { loadPartLibrary, type PartPreset } from './lib/partLibrary';
 import { useMidi } from './lib/useMidi';
 import { DEFAULT_PATCH, type PatchState } from './types/patch';
 import './App.css';
 
 function App() {
   const [patch, setPatch] = useState<PatchState>(DEFAULT_PATCH);
+  const [presets, setPresets] = useState<PartPreset[]>([]);
   const midi = useMidi();
+
+  useEffect(() => {
+    loadPartLibrary().then(setPresets);
+  }, []);
 
   return (
     <div className="app">
@@ -26,6 +32,7 @@ function App() {
       </header>
       <Patch
         value={patch}
+        presets={presets}
         onChange={(c) => {
           const i = c.partIndex - 1;
           const nextPart = applyPartChange(patch[i], c.change);

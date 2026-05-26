@@ -1,0 +1,11 @@
+# Volca Drum part presets
+#
+# One part code per line. Lines starting with `#` and blank lines are
+# ignored. The text after `|` is used as the preset's display name in
+# the editor's dropdown and is applied as the part's comment.
+#
+# Format reference: doc/patch-format.md
+
+vP1:0,0,1,24,0,78,0,0;s,e,e,255,20,0,148,39,144;s,e,e,48,68,0,96,60,130|Kick: A1-Book
+vP1:0,0,0,0,0,0,0,0;s,e,e,152,36,0,120,50,160;h,r,m,255,156,86,90,41,255|Snare A1 Short Book
+vP1:0,0,0,255,255,255,0,0;w,r,e,100,255,0,74,63,255;h,l,m,100,255,42,0,57,255|HH closed razor

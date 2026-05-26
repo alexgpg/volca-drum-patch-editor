@@ -5,6 +5,7 @@ import { Toggle } from '../controls/Toggle';
 import type { LayerState } from '../../types/layer';
 import type { PartChange, PartParam, PartState } from '../../types/part';
 import { decodePart, encodePart } from '../../lib/patchCodec';
+import type { PartPreset } from '../../lib/partLibrary';
 import './Part.css';
 
 export interface PartProps {
@@ -12,6 +13,7 @@ export interface PartProps {
   onChange: (change: PartChange) => void;
   label?: string;
   name?: string;
+  presets?: PartPreset[];
   disabled?: boolean;
 }
 
@@ -20,6 +22,7 @@ export function Part({
   onChange,
   label = 'Part',
   name = 'part',
+  presets = [],
   disabled,
 }: PartProps) {
   const onPart = (param: PartParam, v: number | boolean | string) =>
@@ -41,6 +44,30 @@ export function Part({
       </summary>
 
       <div className="part__body">
+        {presets.length > 0 && (
+          <label className="part__preset">
+            <span className="part__preset-label">Preset</span>
+            <select
+              className="part__preset-select"
+              value=""
+              disabled={disabled}
+              onChange={(e) => {
+                if (e.target.value === '') return;
+                const preset = presets[Number(e.target.value)];
+                if (preset) onChange({ kind: 'part-replace', value: preset.part });
+              }}
+            >
+              <option value="" disabled>
+                Choose a preset…
+              </option>
+              {presets.map((preset, i) => (
+                <option key={i} value={i}>
+                  {preset.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <input
           type="text"
           className="part__comment"
