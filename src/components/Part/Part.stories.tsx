@@ -10,7 +10,7 @@ import { DEFAULT_LAYER } from '../../types/layer';
 const meta = {
   title: 'Patch/Part',
   component: Part,
-  parameters: { layout: 'centered' },
+  parameters: { layout: 'fullscreen' },
   tags: ['autodocs'],
   args: { onChange: fn() },
   render: function Render(args) {

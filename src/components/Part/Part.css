@@ -4,7 +4,6 @@
   border-radius: 10px;
   background: #f3f3f3;
   font-family: ui-sans-serif, system-ui, sans-serif;
-  width: 46rem;
   box-sizing: border-box;
 }
 
@@ -95,7 +94,7 @@
 
 .part__layers {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
   gap: 0.75rem;
 }
 
