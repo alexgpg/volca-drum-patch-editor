@@ -1,12 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import {
+  decodeKit,
   decodeLayer,
   decodePart,
+  encodeKit,
   encodeLayer,
   encodePart,
+  parseLibrary,
 } from './patchCodec';
 import { DEFAULT_LAYER, type LayerState } from '../types/layer';
 import { DEFAULT_PART, type PartState } from '../types/part';
+import {
+  DEFAULT_KIT,
+  type KitState,
+  type PartialKit,
+  type PatchState,
+} from '../types/patch';
 
 describe('Layer round-trip', () => {
   it('default Layer encodes to the expected LCD string and decodes back', () => {
@@ -175,5 +184,190 @@ describe('Part rejection', () => {
 
   it('rejects a Layer code', () => {
     expect(decodePart(encodeLayer(DEFAULT_LAYER))).toBeNull();
+  });
+});
+
+const DEFAULT_PART_CODE = encodePart(DEFAULT_PART);
+
+function makeKit(comment: string, parts?: readonly PartState[]): KitState {
+  const six = (parts ?? [
+    DEFAULT_PART, DEFAULT_PART, DEFAULT_PART,
+    DEFAULT_PART, DEFAULT_PART, DEFAULT_PART,
+  ]) as unknown as PatchState;
+  return { parts: six, comment };
+}
+
+describe('Kit round-trip', () => {
+  it('default Kit encodes to a `#` header followed by six default Part codes', () => {
+    const encoded = encodeKit(DEFAULT_KIT);
+    const expected = ['#', ...Array(6).fill(DEFAULT_PART_CODE)].join('\n');
+    expect(encoded).toBe(expected);
+    expect(decodeKit(encoded)).toEqual(DEFAULT_KIT);
+  });
+
+  it('round-trips a comment in the header', () => {
+    const kit = makeKit('Funky Drums');
+    const encoded = encodeKit(kit);
+    expect(encoded.startsWith('# Funky Drums\n')).toBe(true);
+    expect(decodeKit(encoded)).toEqual(kit);
+  });
+
+  it('round-trips per-part comments through the kit envelope', () => {
+    const named = ['kick', 'snare', 'hat', 'tom', 'rim', 'cym'].map((c) => ({
+      ...DEFAULT_PART,
+      comment: c,
+    }));
+    const kit = makeKit('Drum kit', named);
+    expect(decodeKit(encodeKit(kit))).toEqual(kit);
+  });
+
+  it('preserves "#" inside the comment body', () => {
+    const kit = makeKit('Beat #4');
+    expect(decodeKit(encodeKit(kit))?.comment).toBe('Beat #4');
+  });
+
+  it('strips a leading "#" from the kit comment on encode', () => {
+    // Without this, encoding "# foo" would emit "# # foo", which the
+    // parser would read back as comment "# foo" — silently double-prefixed.
+    const kit = makeKit('# raw');
+    expect(decodeKit(encodeKit(kit))?.comment).toBe('raw');
+  });
+
+  it('strips newlines from the kit comment on encode', () => {
+    const kit = makeKit('line one\nline two');
+    expect(decodeKit(encodeKit(kit))?.comment).toBe('line oneline two');
+  });
+
+  it('tolerates surrounding whitespace and blank lines around the kit', () => {
+    const encoded = `\n\n  ${encodeKit(DEFAULT_KIT)}  \n\n`;
+    expect(decodeKit(encoded)).toEqual(DEFAULT_KIT);
+  });
+});
+
+describe('Kit partial decode', () => {
+  it('accepts a 1-part kit (replaces just part 1)', () => {
+    const encoded = `# single\n${DEFAULT_PART_CODE}`;
+    const expected: PartialKit = { comment: 'single', parts: [DEFAULT_PART] };
+    expect(decodeKit(encoded)).toEqual(expected);
+  });
+
+  it('accepts a 3-part kit (replaces parts 1..3)', () => {
+    const encoded = `# trio\n${DEFAULT_PART_CODE}\n${DEFAULT_PART_CODE}\n${DEFAULT_PART_CODE}`;
+    const expected: PartialKit = {
+      comment: 'trio',
+      parts: [DEFAULT_PART, DEFAULT_PART, DEFAULT_PART],
+    };
+    expect(decodeKit(encoded)).toEqual(expected);
+  });
+
+  it('accepts a 5-part kit', () => {
+    const encoded = ['# five', ...Array(5).fill(DEFAULT_PART_CODE)].join('\n');
+    const decoded = decodeKit(encoded);
+    expect(decoded?.parts.length).toBe(5);
+  });
+
+  it('accepts a headerless paste of vP1: lines as an empty-comment kit', () => {
+    const body = `${DEFAULT_PART_CODE}\n${DEFAULT_PART_CODE}\n${DEFAULT_PART_CODE}`;
+    const expected: PartialKit = {
+      comment: '',
+      parts: [DEFAULT_PART, DEFAULT_PART, DEFAULT_PART],
+    };
+    expect(decodeKit(body)).toEqual(expected);
+  });
+
+  it('accepts a headerless paste of 6 vP1: lines', () => {
+    const body = Array(6).fill(DEFAULT_PART_CODE).join('\n');
+    const decoded = decodeKit(body);
+    expect(decoded?.parts.length).toBe(6);
+    expect(decoded?.comment).toBe('');
+  });
+});
+
+describe('Kit rejection', () => {
+  it('rejects a kit with no parts (`#` header alone)', () => {
+    expect(decodeKit('# empty')).toBeNull();
+  });
+
+  it('rejects a kit with 7 parts', () => {
+    const encoded = ['# long', ...Array(7).fill(DEFAULT_PART_CODE)].join('\n');
+    expect(decodeKit(encoded)).toBeNull();
+  });
+
+  it('rejects a kit containing an invalid Part code', () => {
+    const encoded = [
+      '# bad',
+      DEFAULT_PART_CODE,
+      DEFAULT_PART_CODE,
+      'vP1:garbage',
+      DEFAULT_PART_CODE,
+      DEFAULT_PART_CODE,
+      DEFAULT_PART_CODE,
+    ].join('\n');
+    expect(decodeKit(encoded)).toBeNull();
+  });
+
+  it('rejects multi-kit input (decodeKit expects exactly one)', () => {
+    const two = `${encodeKit(makeKit('A'))}\n${encodeKit(makeKit('B'))}`;
+    expect(decodeKit(two)).toBeNull();
+  });
+
+  it('rejects input with an unknown line shape', () => {
+    const encoded = `# bad\n${DEFAULT_PART_CODE}\ngarbage\n${DEFAULT_PART_CODE}`;
+    expect(decodeKit(encoded)).toBeNull();
+  });
+
+  it('rejects empty input', () => {
+    expect(decodeKit('')).toBeNull();
+    expect(decodeKit('   \n\n  ')).toBeNull();
+  });
+});
+
+describe('Library parse', () => {
+  it('parses two kits back', () => {
+    const a = makeKit('Kit A');
+    const b = makeKit('Kit B');
+    const text = `${encodeKit(a)}\n${encodeKit(b)}`;
+    expect(parseLibrary(text)).toEqual([a, b]);
+  });
+
+  it('keeps a 2-part partial kit in a library', () => {
+    const good = makeKit('Good');
+    const text = [
+      '# Short',
+      DEFAULT_PART_CODE,
+      DEFAULT_PART_CODE,
+      encodeKit(good),
+    ].join('\n');
+    expect(parseLibrary(text)).toEqual([
+      { comment: 'Short', parts: [DEFAULT_PART, DEFAULT_PART] },
+      good,
+    ]);
+  });
+
+  it('drops a library kit with too many parts but keeps the rest', () => {
+    const good = makeKit('Good');
+    const text = [
+      '# Overflowing',
+      ...Array(7).fill(DEFAULT_PART_CODE),
+      encodeKit(good),
+    ].join('\n');
+    expect(parseLibrary(text)).toEqual([good]);
+  });
+
+  it('tolerates blank lines between kits', () => {
+    const a = makeKit('A');
+    const b = makeKit('B');
+    const text = `${encodeKit(a)}\n\n\n${encodeKit(b)}\n`;
+    expect(parseLibrary(text)).toEqual([a, b]);
+  });
+
+  it('returns [] when a leading vP1: appears before any `#`', () => {
+    const text = `${DEFAULT_PART_CODE}\n${encodeKit(makeKit('After'))}`;
+    expect(parseLibrary(text)).toEqual([]);
+  });
+
+  it('returns [] for empty input', () => {
+    expect(parseLibrary('')).toEqual([]);
+    expect(parseLibrary('\n\n\n')).toEqual([]);
   });
 });

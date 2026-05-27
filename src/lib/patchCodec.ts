@@ -1,5 +1,6 @@
 import type { AmpEG, LayerState, ModType, SoundSource } from '../types/layer';
 import type { PartState } from '../types/part';
+import type { KitState, PartialKit } from '../types/patch';
 import { ccToDisplayPitch, displayPitchToCcSnap } from './devicePitch';
 import { ccToLcd, isValidLcd, lcdToCcSnap } from './deviceScale';
 
@@ -179,4 +180,82 @@ export function decodePart(s: string): PartState | null {
     linked: linked === 1,
     comment: partComment,
   };
+}
+
+// Newlines would break the single-line invariant; a leading `#` after
+// the encoder's `# ` prefix would create `# # foo` which the parser
+// can't distinguish from a comment that genuinely starts with `#`.
+function safeKitComment(comment: string): string {
+  return comment.replace(/\n/g, '').replace(/^#\s*/, '');
+}
+
+const KIT_MAX_PARTS = 6;
+
+export function encodeKit(kit: KitState): string {
+  const safe = safeKitComment(kit.comment);
+  const header = safe ? `# ${safe}` : '#';
+  return [header, ...kit.parts.map(encodePart)].join('\n');
+}
+
+// Rules:
+//   - every kit must begin with a `#` line (the encoder always emits one,
+//     so a leading `vP1:` means the input is malformed)
+//   - 1..6 valid `vP1:` lines per kit; a kit with 0 parts, a 7th part, or
+//     an invalid `vP1:` line is dropped (other kits in a library still
+//     parse). Partial kits overlay positionally on apply — see
+//     `applyPatchChange`.
+//   - any other non-empty line aborts parsing (returns [])
+export function parseLibrary(text: string): PartialKit[] {
+  const lines = text.split('\n');
+  const kits: PartialKit[] = [];
+  let pending: PartialKit | null = null;
+  let dropPending = false;
+
+  const commit = () => {
+    if (pending && !dropPending && pending.parts.length >= 1) {
+      kits.push(pending);
+    }
+    pending = null;
+    dropPending = false;
+  };
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (line === '') continue;
+
+    if (line.startsWith('#')) {
+      commit();
+      const after = line.slice(1);
+      const comment = after.startsWith(' ') ? after.slice(1) : after;
+      pending = { comment, parts: [] };
+      continue;
+    }
+
+    if (line.startsWith('vP1:')) {
+      if (!pending) return [];
+      if (dropPending) continue;
+      const part = decodePart(line);
+      if (!part || pending.parts.length === KIT_MAX_PARTS) {
+        dropPending = true;
+        continue;
+      }
+      pending.parts.push(part);
+      continue;
+    }
+
+    return [];
+  }
+  commit();
+  return kits;
+}
+
+export function decodeKit(text: string): PartialKit | null {
+  // Single-kit paste is more forgiving than a library entry: a bare
+  // run of `vP1:` lines (no `#` header) is treated as a kit with an
+  // empty comment. `parseLibrary` stays strict so kit boundaries in a
+  // library file remain unambiguous.
+  const trimmed = text.trim();
+  const normalized = trimmed.startsWith('#') ? trimmed : `#\n${trimmed}`;
+  const kits = parseLibrary(normalized);
+  return kits.length === 1 ? kits[0] : null;
 }

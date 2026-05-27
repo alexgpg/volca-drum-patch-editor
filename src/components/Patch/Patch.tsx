@@ -1,11 +1,11 @@
 import { Part } from '../Part/Part';
 import type { PartPreset } from '../../lib/partLibrary';
-import type { PartIndex, PatchChange, PatchState } from '../../types/patch';
+import type { PartIndex, PartScopedChange, PatchState } from '../../types/patch';
 import './Patch.css';
 
 export interface PatchProps {
   value: PatchState;
-  onChange: (change: PatchChange) => void;
+  onChange: (change: PartScopedChange) => void;
   presets?: PartPreset[];
   disabled?: boolean;
 }

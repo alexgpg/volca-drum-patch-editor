@@ -1,21 +1,54 @@
 import { useEffect, useState } from 'react';
+import { Kit } from './components/Kit/Kit';
 import { MidiDevicePicker } from './components/MidiDevicePicker/MidiDevicePicker';
 import { Patch } from './components/Patch/Patch';
-import { applyPartChange } from './lib/applyPartChange';
+import { applyPatchChange } from './lib/applyPatchChange';
 import { sendPartChange } from './lib/midiSend';
 import { loadPartLibrary, type PartPreset } from './lib/partLibrary';
 import { useMidi } from './lib/useMidi';
-import { DEFAULT_PATCH, type PatchState } from './types/patch';
+import {
+  DEFAULT_KIT,
+  type KitState,
+  type PartIndex,
+  type PatchChange,
+} from './types/patch';
 import './App.css';
 
 function App() {
-  const [patch, setPatch] = useState<PatchState>(DEFAULT_PATCH);
+  const [kit, setKit] = useState<KitState>(DEFAULT_KIT);
   const [presets, setPresets] = useState<PartPreset[]>([]);
   const midi = useMidi();
 
   useEffect(() => {
     loadPartLibrary().then(setPresets);
   }, []);
+
+  const onChange = (c: PatchChange) => {
+    const nextKit = applyPatchChange(kit, c);
+    if (midi.live && midi.output) {
+      if ('kind' in c) {
+        if (c.kind === 'kit-replace') {
+          // Only send CCs for the parts the paste actually replaced;
+          // a partial kit (N<6) leaves the device-side parts N+1..6 alone.
+          for (let i = 0; i < c.value.parts.length; i++) {
+            const partIndex = (i + 1) as PartIndex;
+            const part = nextKit.parts[i];
+            sendPartChange(
+              midi.output,
+              partIndex,
+              { kind: 'part-replace', value: part },
+              part,
+            );
+          }
+        }
+        // kind === 'kit' (comment edit) — no MIDI.
+      } else {
+        const i = c.partIndex - 1;
+        sendPartChange(midi.output, c.partIndex, c.change, nextKit.parts[i]);
+      }
+    }
+    setKit(nextKit);
+  };
 
   return (
     <div className="app">
@@ -30,29 +63,8 @@ function App() {
           onLiveChange={midi.setLive}
         />
       </header>
-      <Patch
-        value={patch}
-        presets={presets}
-        onChange={(c) => {
-          const i = c.partIndex - 1;
-          const nextPart = applyPartChange(patch[i], c.change);
-          if (midi.live && midi.output) {
-            sendPartChange(midi.output, c.partIndex, c.change, nextPart);
-          }
-          setPatch((prev) => {
-            const next = [...prev] as [
-              PatchState[0],
-              PatchState[1],
-              PatchState[2],
-              PatchState[3],
-              PatchState[4],
-              PatchState[5],
-            ];
-            next[i] = nextPart;
-            return next;
-          });
-        }}
-      />
+      <Kit value={kit} onChange={onChange} />
+      <Patch value={kit.parts} onChange={onChange} presets={presets} />
     </div>
   );
 }

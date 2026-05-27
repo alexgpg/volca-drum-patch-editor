@@ -43,6 +43,11 @@ export function PatchCode({ value, onApply, placeholder, disabled }: PatchCodePr
   const apply = (text: string) => {
     const ok = onApply(text);
     setInvalid(!ok);
+    // Snap draft back to canonical `value` even when onApply was a state
+    // no-op; otherwise a partial paste that doesn't change anything (e.g.
+    // re-pasting the same code) leaves the textarea stuck at the user's
+    // typed text instead of the encoded form.
+    if (ok) setDraft(value);
   };
 
   const commitOnBlur = () => {
