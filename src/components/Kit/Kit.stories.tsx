@@ -6,16 +6,35 @@ import { fn } from 'storybook/test';
 import { Kit } from './Kit';
 import { applyPatchChange } from '../../lib/applyPatchChange';
 import { DEFAULT_PART } from '../../types/part';
-import { DEFAULT_KIT, type KitState, type PatchState } from '../../types/patch';
+import {
+  DEFAULT_KIT,
+  type KitState,
+  type PartialKit,
+  type PatchState,
+} from '../../types/patch';
 
 const partCommented = (comment: string) => ({ ...DEFAULT_PART, comment });
+
+const SAMPLE_KITS: PartialKit[] = [
+  {
+    comment: 'Sample Kit 1',
+    parts: [partCommented('kick'), partCommented('snare'), partCommented('hat')],
+  },
+  {
+    comment: 'Full Kit',
+    parts: [
+      partCommented('k'), partCommented('s'), partCommented('h'),
+      partCommented('t'), partCommented('r'), partCommented('c'),
+    ],
+  },
+];
 
 const meta = {
   title: 'Kit/Kit',
   component: Kit,
   parameters: { layout: 'fullscreen' },
   tags: ['autodocs'],
-  args: { onChange: fn() },
+  args: { onChange: fn(), kits: SAMPLE_KITS },
   render: function Render(args) {
     const [{ value }, updateArgs] = useArgs<{ value: KitState }>();
     // Same stale-closure guard as Patch.stories: a ref mirrors `value`

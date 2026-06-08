@@ -3,6 +3,7 @@ import { Kit } from './components/Kit/Kit';
 import { MidiDevicePicker } from './components/MidiDevicePicker/MidiDevicePicker';
 import { Patch } from './components/Patch/Patch';
 import { applyPatchChange } from './lib/applyPatchChange';
+import { loadKitLibrary } from './lib/kitLibrary';
 import { sendPartChange } from './lib/midiSend';
 import { loadPartLibrary, type PartPreset } from './lib/partLibrary';
 import { useMidi } from './lib/useMidi';
@@ -10,6 +11,7 @@ import {
   DEFAULT_KIT,
   type KitState,
   type PartIndex,
+  type PartialKit,
   type PatchChange,
 } from './types/patch';
 import './App.css';
@@ -17,10 +19,12 @@ import './App.css';
 function App() {
   const [kit, setKit] = useState<KitState>(DEFAULT_KIT);
   const [presets, setPresets] = useState<PartPreset[]>([]);
+  const [kits, setKits] = useState<PartialKit[]>([]);
   const midi = useMidi();
 
   useEffect(() => {
     loadPartLibrary().then(setPresets);
+    loadKitLibrary().then(setKits);
   }, []);
 
   const onChange = (c: PatchChange) => {
@@ -63,7 +67,7 @@ function App() {
           onLiveChange={midi.setLive}
         />
       </header>
-      <Kit value={kit} onChange={onChange} />
+      <Kit value={kit} onChange={onChange} kits={kits} />
       <Patch value={kit.parts} onChange={onChange} presets={presets} />
     </div>
   );

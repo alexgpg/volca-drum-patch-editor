@@ -1,0 +1,13 @@
+# Volca Drum kit presets
+#
+# Each kit is a `#` header line (its name) followed by up to six part
+# codes — the same `vP1:` format as parts.txt. Fewer than six parts
+# replaces only the leading slots and leaves the rest of the patch as-is.
+# Lines starting with `#` and blank lines outside a kit are ignored.
+#
+# Format reference: doc/patch-format.md
+
+# Sample Kit 1
+vP1:0,0,1,24,0,78,0,0;s,e,e,255,20,0,148,39,144;s,e,e,48,68,0,96,60,130|Kick: A1-Book
+vP1:0,0,0,0,0,0,0,0;s,e,e,152,36,0,120,50,160;h,r,m,255,156,86,90,41,255|Snare A1 Short Book
+vP1:0,0,0,255,255,255,0,0;w,r,e,100,255,0,74,63,255;h,l,m,100,255,42,0,57,255|HH closed razor
