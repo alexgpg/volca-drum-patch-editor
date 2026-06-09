@@ -1,6 +1,5 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
 import path from 'node:path';
@@ -14,7 +13,6 @@ export default defineConfig({
   // Relative base so the build works under the project Pages subpath
   // (https://alexgpg.github.io/volca-drum-patch-editor/) as well as at root.
   base: './',
-  plugins: [react()],
   test: {
     projects: [
       {

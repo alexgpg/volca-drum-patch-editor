@@ -25,7 +25,7 @@ pnpm install
 pnpm dev
 ```
 
-Built with React, TypeScript, and Vite.
+Built with native Web Components, TypeScript, and Vite — no UI framework.
 
 ## Storybook
 

@@ -1,10 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useEffect, useRef } from 'react';
-import { useArgs } from 'storybook/preview-api';
+import type { Meta, StoryObj } from '@storybook/web-components-vite';
+import { html } from 'lit';
+import { useArgs, useRef } from 'storybook/preview-api';
 import { expect, fn, waitFor } from 'storybook/test';
 
 import './volca-kit';
-import type { VolcaKit } from './volca-kit';
 import { applyPatchChange } from '../lib/applyPatchChange';
 import { DEFAULT_PART } from '../types/part';
 import {
@@ -14,16 +13,6 @@ import {
   type PatchChange,
   type PatchState,
 } from '../types/patch';
-
-// Teach TSX about <volca-kit> (see VolcaToggle.stories for why).
-declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace -- JSX intrinsic typings must live in a namespace
-  namespace JSX {
-    interface IntrinsicElements {
-      'volca-kit': DetailedHTMLProps<HTMLAttributes<VolcaKit>, VolcaKit>;
-    }
-  }
-}
 
 const partCommented = (comment: string) => ({ ...DEFAULT_PART, comment });
 
@@ -49,7 +38,7 @@ interface KitArgs {
 }
 
 const meta = {
-  title: 'WC/Kit',
+  title: 'Kit/Kit',
   parameters: { layout: 'fullscreen' },
   tags: ['autodocs'],
   args: {
@@ -58,42 +47,28 @@ const meta = {
     disabled: false,
     onChange: fn(),
   },
+  // Same stale-closure guard as the Patch story: fold rapid events on the
+  // latest reduced state, not on a pending arg echo.
   render: function Render(args) {
-    const [{ value, kits, disabled }, updateArgs] = useArgs<KitArgs>();
-    const ref = useRef<VolcaKit>(null);
-    // Same stale-closure guard as the Patch story: fold rapid events on the
-    // latest reduced state, not on a pending arg echo.
+    const [{ value }, updateArgs] = useArgs<KitArgs>();
     const latest = useRef(value);
     latest.current = value;
-
-    useEffect(() => {
-      const el = ref.current;
-      if (!el) return;
-      el.disabled = disabled;
-      el.kits = kits;
-      el.value = value;
-    }, [value, kits, disabled]);
-
-    useEffect(() => {
-      const el = ref.current;
-      if (!el) return;
-      const onChange = (event: Event) => {
-        const c = (event as CustomEvent<PatchChange>).detail;
-        const next = applyPatchChange(latest.current, c);
+    return html`<volca-kit
+      .disabled=${args.disabled}
+      .kits=${args.kits}
+      .value=${value}
+      @change=${(e: CustomEvent<PatchChange>) => {
+        const next = applyPatchChange(latest.current, e.detail);
         latest.current = next;
         updateArgs({ value: next });
-        args.onChange(c);
-      };
-      el.addEventListener('change', onChange);
-      return () => el.removeEventListener('change', onChange);
-    }, [args, updateArgs]);
-
-    return <volca-kit ref={ref} />;
+        args.onChange(e.detail);
+      }}
+    ></volca-kit>`;
   },
 } satisfies Meta<KitArgs>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<KitArgs>;
 
 export const Default: Story = {
   // Derived kit selection: applying a library kit lights its entry up;

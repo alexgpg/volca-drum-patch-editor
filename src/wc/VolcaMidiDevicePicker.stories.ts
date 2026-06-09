@@ -1,26 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useEffect, useRef } from 'react';
+import type { Meta, StoryObj } from '@storybook/web-components-vite';
+import { html } from 'lit';
+import { useMemo } from 'storybook/preview-api';
 
 import './volca-midi-device-picker';
-import type { VolcaMidiDevicePicker } from './volca-midi-device-picker';
 import type {
   MidiOutputInfo,
   MidiSource,
   MidiSupport,
 } from '../lib/midiController';
-
-// Teach TSX about <volca-midi-device-picker> (see VolcaToggle.stories for why).
-declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace -- JSX intrinsic typings must live in a namespace
-  namespace JSX {
-    interface IntrinsicElements {
-      'volca-midi-device-picker': DetailedHTMLProps<
-        HTMLAttributes<VolcaMidiDevicePicker>,
-        VolcaMidiDevicePicker
-      >;
-    }
-  }
-}
 
 const VOLCA: MidiOutputInfo = { id: 'out-volca', name: 'KORG volca drum', connected: true };
 const IAC: MidiOutputInfo = { id: 'out-iac', name: 'IAC Driver Bus 1', connected: true };
@@ -88,28 +75,20 @@ class FakeMidiSource extends EventTarget implements MidiSource {
 }
 
 const meta = {
-  title: 'WC/MidiDevicePicker',
+  title: 'MIDI/MidiDevicePicker',
   parameters: { layout: 'padded' },
   args: { support: 'idle', outputs: [], selectedId: null, live: false },
   render: function Render(args) {
-    const ref = useRef<VolcaMidiDevicePicker>(null);
-    const source = useRef<FakeMidiSource | null>(null);
-    source.current ??= new FakeMidiSource(args); // seed once from the story args
-
-    useEffect(() => {
-      if (ref.current) ref.current.controller = source.current;
-    }, []);
-
-    return (
-      <div style={{ width: '32rem' }}>
-        <volca-midi-device-picker ref={ref} />
-      </div>
-    );
+    // One fake source per story mount, seeded from the story args.
+    const source = useMemo(() => new FakeMidiSource(args), []);
+    return html`<div style="width: 32rem">
+      <volca-midi-device-picker .controller=${source}></volca-midi-device-picker>
+    </div>`;
   },
 } satisfies Meta<PickerArgs>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<PickerArgs>;
 
 export const Idle: Story = {
   args: { support: 'idle' },

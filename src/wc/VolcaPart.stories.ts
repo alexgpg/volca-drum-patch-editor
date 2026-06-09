@@ -1,24 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useEffect, useRef } from 'react';
-import { useArgs } from 'storybook/preview-api';
+import type { Meta, StoryObj } from '@storybook/web-components-vite';
+import { html } from 'lit';
+import { useArgs, useRef } from 'storybook/preview-api';
 import { expect, fn, waitFor } from 'storybook/test';
 
 import './volca-part';
-import type { VolcaPart } from './volca-part';
 import { applyPartChange } from '../lib/applyPartChange';
 import type { PartPreset } from '../lib/partLibrary';
 import { DEFAULT_LAYER } from '../types/layer';
 import { DEFAULT_PART, type PartChange, type PartState } from '../types/part';
-
-// Teach TSX about <volca-part> (see VolcaToggle.stories for why).
-declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace -- JSX intrinsic typings must live in a namespace
-  namespace JSX {
-    interface IntrinsicElements {
-      'volca-part': DetailedHTMLProps<HTMLAttributes<VolcaPart>, VolcaPart>;
-    }
-  }
-}
 
 interface PartArgs {
   label: string;
@@ -30,7 +19,7 @@ interface PartArgs {
 }
 
 const meta = {
-  title: 'WC/Part',
+  title: 'Patch/Part',
   parameters: { layout: 'fullscreen' },
   tags: ['autodocs'],
   args: {
@@ -41,41 +30,31 @@ const meta = {
     disabled: false,
     onChange: fn(),
   },
+  // 'change' carries the PartChange union; fold it back with the same
+  // reducer the app uses. A ref mirrors the latest folded state so
+  // rapid-fire events chain on it, not on a pending arg echo.
   render: function Render(args) {
-    const [{ label, name, value, presets, disabled }, updateArgs] =
-      useArgs<PartArgs>();
-    const ref = useRef<VolcaPart>(null);
-
-    useEffect(() => {
-      const el = ref.current;
-      if (!el) return;
-      el.label = label;
-      el.name = name;
-      el.disabled = disabled;
-      el.presets = presets;
-      el.value = value;
-    }, [label, name, value, presets, disabled]);
-
-    // 'change' carries the PartChange union; fold it back with the same
-    // reducer the app uses.
-    useEffect(() => {
-      const el = ref.current;
-      if (!el) return;
-      const onChange = (event: Event) => {
-        const change = (event as CustomEvent<PartChange>).detail;
-        updateArgs({ value: applyPartChange(el.value, change) });
-        args.onChange(change);
-      };
-      el.addEventListener('change', onChange);
-      return () => el.removeEventListener('change', onChange);
-    }, [args, updateArgs]);
-
-    return <volca-part ref={ref} />;
+    const [{ value }, updateArgs] = useArgs<PartArgs>();
+    const latest = useRef(value);
+    latest.current = value;
+    return html`<volca-part
+      .label=${args.label}
+      .name=${args.name}
+      .disabled=${args.disabled}
+      .presets=${args.presets}
+      .value=${value}
+      @change=${(e: CustomEvent<PartChange>) => {
+        const next = applyPartChange(latest.current, e.detail);
+        latest.current = next;
+        updateArgs({ value: next });
+        args.onChange(e.detail);
+      }}
+    ></volca-part>`;
   },
 } satisfies Meta<PartArgs>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<PartArgs>;
 
 export const Default: Story = {
   args: { label: 'Part 1', name: 'p1' },

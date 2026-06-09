@@ -1,8 +1,10 @@
 # React → Web Components migration
 
-Tracking the experimental rewrite of the editor UI from React to native
-Web Components (custom elements). Lives on the `experiment/web-components`
-branch; `main` stays React until this proves itself.
+Tracking the rewrite of the editor UI from React to native Web Components
+(custom elements). Lives on the `experiment/web-components` branch.
+**Status: complete** — the app, all components, stories, and tooling are
+React-free; this document remains as the record of the process and its
+conventions.
 
 ## Why it's tractable here
 
@@ -108,8 +110,12 @@ can move one at a time inside the running app instead of big-bang.
 ## Tooling
 
 - Vite, Vitest, and Storybook themselves are framework-neutral and stay.
-- Going away: `@vitejs/plugin-react`, `eslint-plugin-react-hooks`,
-  `eslint-plugin-react-refresh`, `@types/react*`.
+- Gone (teardown): `react`, `react-dom`, `@vitejs/plugin-react`,
+  `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`,
+  `@types/react*`, `@storybook/react-vite`. Storybook now runs
+  `@storybook/web-components-vite`; stories are native `.stories.ts` with
+  lit-html templates (`lit` is a dev-only dependency for story templating —
+  the components themselves remain vanilla, and the app bundle has no lit).
 - **Storybook during the migration:** a Storybook instance has a single
   renderer. The React renderer *can* host a custom element; the
   web-components renderer *cannot* host React. So while both kinds coexist we
@@ -202,3 +208,11 @@ can move one at a time inside the running app instead of big-bang.
   WC Part/Kit stories (green in the Storybook UI; note: the headless
   `vitest --project storybook` runner currently crashes at browser launch in
   this environment — "[birpc] rpc is closed" — runs in the UI instead).
+- ✅ **Teardown — migration complete.** React sources deleted
+  (`App.tsx`, `main.tsx`, `components/`, `useMidi.ts`, the Storybook example
+  `stories/`), all React/`@storybook/react-vite` dependencies removed, ESLint
+  and tsconfig de-Reacted. Storybook swapped to
+  `@storybook/web-components-vite`; all 11 stories rewritten as native
+  `.stories.ts` (lit-html templates, original titles restored), with the
+  Part/Kit `play` tests passing on the new renderer. Gates green: lint,
+  493 unit tests, build (57 kB / 14 kB gzip).
