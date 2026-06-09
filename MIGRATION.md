@@ -28,7 +28,7 @@ branch; `main` stays React until this proves itself.
    lifecycle: the `statechange` refresh and auto-select-single-output logic.
    Verify against a real device. ✅ *store (15 unit tests) + picker done.*
 5. **Compose upward:** `Layer` → `Part` → `Kit`/`Patch` → `App`.
-   ⬅️ *Layer ✅, Part ✅; next: Patch/Kit*
+   ✅ *all composites ported; next: the app root*
 6. **Move `.test.ts` as you go.** Logic tests pass unchanged; only component
    tests need rewriting.
 7. **Migrate Storybook stories last**, per component, then swap Storybook to
@@ -167,4 +167,18 @@ can move one at a time inside the running app instead of big-bang.
   Verified: full change pipeline across two shadow tiers, linked/pitch-quant
   compound disable rules, preset → `part-replace` round-trip, patch-code
   accept/reject. Violations 0. Cross-shadow layout via custom properties
-  (`--volca-layer-width`, group toggle columns). Next: `Patch`/`Kit`.
+  (`--volca-layer-width`, group toggle columns).
+- ✅ `Patch` → `<volca-patch>` — six parts emitting `PartScopedChange`
+  (`{partIndex, change}`). **The Lit question is settled: no.** The part list
+  is a fixed six-tuple, never resized, so it's a static template like every
+  other composite — vanilla was enough for the whole app. A change four
+  tiers deep (radio → layer → part → patch) verified surfacing correctly.
+- ✅ `Kit` → `<volca-kit>` — kit name/copy-paste/library picker emitting
+  `PatchChange`; partial-kit overlay verified (3-part library pick leaves
+  parts 4–6 untouched). Violations 0.
+- Known parity issue: the Patch story flags axe `landmark-unique` (Moderate) —
+  six identically-named "Layer 1"/"Layer 2" regions. Pre-existing: the React
+  Patch story has it too (plus a "Form label" violation the WC port fixed by
+  adding aria-labels to comment/code fields). Fix later in both or after
+  teardown, not as a silent semantic divergence mid-port.
+  Next: the app root (`App.tsx`/`main.tsx`).
