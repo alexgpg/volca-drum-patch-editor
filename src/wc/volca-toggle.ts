@@ -29,9 +29,12 @@ template.innerHTML = `
        name from the text — and clicking the row toggles it. */
     .row {
       display: grid;
-      grid-template-columns: 6rem 1fr 3rem;
+      /* Columns/gap are themable from outside via custom properties (they
+         pierce the shadow boundary, unlike selectors). Defaults match the
+         original layout, so untouched usages are unchanged. */
+      grid-template-columns: var(--volca-toggle-columns, 6rem 1fr 3rem);
       align-items: center;
-      gap: 0.5rem;
+      gap: var(--volca-toggle-gap, 0.5rem);
       cursor: pointer;
     }
     :host([disabled]) .row {

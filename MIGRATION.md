@@ -26,7 +26,7 @@ branch; `main` stays React until this proves itself.
    mid-migration.
 4. **Port `useMidi` → a controller/store.** The one stateful piece with real
    lifecycle: the `statechange` refresh and auto-select-single-output logic.
-   Verify against a real device.
+   Verify against a real device. ✅ *store (15 unit tests) + picker done.*
 5. **Compose upward:** `Layer` → `Part` → `Kit`/`Patch` → `App`.
 6. **Move `.test.ts` as you go.** Logic tests pass unchanged; only component
    tests need rewriting.
@@ -54,6 +54,11 @@ can move one at a time inside the running app instead of big-bang.
   HTML: `<volca-toggle label="Link Layers" checked>`.
 - **Shadow DOM** with a scoped `<style>`. Opt out (`this` as render root) only
   if reusing a global stylesheet is genuinely easier for a given component.
+- **Cross-shadow styling = custom properties, not selectors.** A parent can't
+  reach a child's shadow internals (the React picker did `.midi-picker__live
+  .toggle {…}`). Expose the knobs as CSS custom properties, which *do* pierce
+  the boundary: `<volca-toggle>` reads `var(--volca-toggle-columns, …)` and the
+  picker sets it to compact the Live toggle.
 - **Event names:** `change` for live value edits, `apply` for commit-style
   actions (e.g. pasting a patch code). Keep `detail` a plain value or object.
   For a commit that can be *rejected* (React's `onApply(raw): boolean`), make
@@ -120,5 +125,13 @@ can move one at a time inside the running app instead of big-bang.
   the combobox aria-label React lacked. Violations 0 (1 axe "inconclusive" —
   manual-review item, not a failure).
 - ✅ **Leaf layer complete** — the whole `controls/` directory is ported.
-  Next: `useMidi` → controller, then composites (`Layer` → `Part` →
-  `Kit`/`Patch`).
+- ✅ `useMidi` → `MidiController` (`src/lib/midiController.ts`) — an
+  `EventTarget` store with the access factory injected for testability. 15
+  unit tests cover auto-select (single/multiple/none), the statechange
+  refresh, selection persistence, denial, and `change` emission.
+- ✅ `MidiDevicePicker` → `<volca-midi-device-picker>` — driven by an injected
+  `MidiSource` (the store, or a fake): subscribes to `change`, rebuilds its
+  view, and its controls call the store. All five views + Live/Disconnect
+  interactions verified; Violations 0. `MidiController implements MidiSource`,
+  so the real store is a drop-in (the story uses a fake — Web MIDI is absent
+  in Storybook). Next: composites (`Layer` → `Part` → `Kit`/`Patch`).
