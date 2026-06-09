@@ -28,7 +28,7 @@ branch; `main` stays React until this proves itself.
    lifecycle: the `statechange` refresh and auto-select-single-output logic.
    Verify against a real device. ✅ *store (15 unit tests) + picker done.*
 5. **Compose upward:** `Layer` → `Part` → `Kit`/`Patch` → `App`.
-   ✅ *all composites ported; next: the app root*
+   ✅ *complete — `<volca-app>` is the root; index.html boots React-free*
 6. **Move `.test.ts` as you go.** Logic tests pass unchanged; only component
    tests need rewriting.
 7. **Migrate Storybook stories last**, per component, then swap Storybook to
@@ -181,4 +181,12 @@ can move one at a time inside the running app instead of big-bang.
   Patch story has it too (plus a "Form label" violation the WC port fixed by
   adding aria-labels to comment/code fields). Fix later in both or after
   teardown, not as a silent semantic divergence mid-port.
-  Next: the app root (`App.tsx`/`main.tsx`).
+- ✅ App root → `<volca-app>` (`src/wc/volca-app.ts`, entry `src/main-wc.ts`,
+  wired in `index.html`). Owns KitState + the MidiController; the
+  onChange/MIDI-mirroring logic ported verbatim from App.tsx. Verified in the
+  running app: boot (6 parts, kit, idle picker), both library fetches, a part
+  edit re-encoding the kit code, a starter-kit pick overlaying parts 1..N.
+  Production bundle: 57 kB JS / 14 kB gzip, no React. Still pending: a
+  real-device pass (Connect MIDI → Live → knob → CCs) — automated browsers
+  can't answer the MIDI permission prompt.
+  Next: teardown (remove React components/deps, swap Storybook).

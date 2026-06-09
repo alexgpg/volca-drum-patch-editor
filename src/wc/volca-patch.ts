@@ -32,7 +32,8 @@ template.innerHTML = `
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      padding: 1rem;
+      /* themable from outside (the app trims the top under its sticky header) */
+      padding: var(--volca-patch-padding, 1rem);
       font-family: ui-sans-serif, system-ui, sans-serif;
     }
   </style>
