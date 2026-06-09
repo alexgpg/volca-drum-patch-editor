@@ -139,7 +139,7 @@ type RadioParam = keyof typeof RADIO_OPTIONS;
 type ScaledLayerParam = 'level' | 'modAmount' | 'modRate' | 'egAttack' | 'egRelease';
 
 export class VolcaLayer extends HTMLElement {
-  static observedAttributes = ['label', 'name', 'disabled', 'pitch-quant'];
+  static observedAttributes = ['label', 'name', 'disabled', 'pitch-quant', 'context'];
 
   #section: HTMLElement;
   #title: HTMLElement;
@@ -252,6 +252,21 @@ export class VolcaLayer extends HTMLElement {
     this.setAttribute('name', v);
   }
 
+  /**
+   * Naming context for the section landmark, e.g. the owning part's label.
+   * Six parts each contain a "Layer 1"/"Layer 2" region; without context the
+   * landmark list is twelve indistinguishable entries (axe landmark-unique).
+   * The visible heading stays short — only the accessible name is prefixed.
+   * (Deliberately not named aria-*: unknown aria attributes are invalid.)
+   */
+  get context(): string {
+    return this.getAttribute('context') ?? '';
+  }
+  set context(v: string) {
+    if ((v ?? '') === this.context) return;
+    this.setAttribute('context', v ?? '');
+  }
+
   get disabled(): boolean {
     return this.hasAttribute('disabled');
   }
@@ -281,7 +296,8 @@ export class VolcaLayer extends HTMLElement {
     const label = this.label;
     const name = this.name;
 
-    this.#section.setAttribute('aria-label', label);
+    const context = this.context;
+    this.#section.setAttribute('aria-label', context ? `${context} — ${label}` : label);
     this.#title.textContent = v.comment ? `${label} — ${v.comment}` : label;
 
     // Same-string writes are skipped so the caret survives the parent echoing

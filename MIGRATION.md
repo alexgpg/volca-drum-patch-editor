@@ -182,11 +182,12 @@ can move one at a time inside the running app instead of big-bang.
 - ✅ `Kit` → `<volca-kit>` — kit name/copy-paste/library picker emitting
   `PatchChange`; partial-kit overlay verified (3-part library pick leaves
   parts 4–6 untouched). Violations 0.
-- Known parity issue: the Patch story flags axe `landmark-unique` (Moderate) —
-  six identically-named "Layer 1"/"Layer 2" regions. Pre-existing: the React
-  Patch story has it too (plus a "Form label" violation the WC port fixed by
-  adding aria-labels to comment/code fields). Fix later in both or after
-  teardown, not as a silent semantic divergence mid-port.
+- ~~Known parity issue: axe `landmark-unique` on the Patch story~~ — fixed
+  post-teardown: `volca-layer` takes a `context` (the owning part's label)
+  and prefixes only the section's accessible name, so the landmark list reads
+  "Part 1 — Layer 1" … "Part 6 — Layer 2" while the visible headings stay
+  short. Patch story: Violations 0. (The React original also had a
+  "Form label" violation, fixed earlier by labelling comment/code fields.)
 - ✅ App root → `<volca-app>` (`src/wc/volca-app.ts`, entry `src/main-wc.ts`,
   wired in `index.html`). Owns KitState + the MidiController; the
   onChange/MIDI-mirroring logic ported verbatim from App.tsx. Verified in the

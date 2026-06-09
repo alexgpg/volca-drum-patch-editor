@@ -367,12 +367,14 @@ export class VolcaPart extends HTMLElement {
     this.#linkToggle.disabled = disabled;
 
     this.#layer1.label = v.linked ? 'Layer 1-2' : 'Layer 1';
+    this.#layer1.context = label;
     this.#layer1.name = `${name}-l1`;
     this.#layer1.pitchQuant = v.pitchQuant;
     this.#layer1.disabled = disabled;
     this.#layer1.value = v.layer1;
 
     this.#layer2.label = 'Layer 2';
+    this.#layer2.context = label;
     this.#layer2.name = `${name}-l2`;
     this.#layer2.pitchQuant = v.pitchQuant;
     this.#layer2.disabled = disabled || v.linked;
