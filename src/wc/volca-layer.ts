@@ -53,7 +53,9 @@ template.innerHTML = `
       border-radius: 8px;
       background: #fafafa;
       font-family: ui-sans-serif, system-ui, sans-serif;
-      width: 22rem;
+      /* Width is themable from outside (custom properties pierce the shadow
+         boundary); <volca-part> sets it to auto in its responsive grid. */
+      width: var(--volca-layer-width, 22rem);
     }
     .layer__title {
       margin: 0;
@@ -232,10 +234,13 @@ export class VolcaLayer extends HTMLElement {
     this.#sync();
   }
 
+  // Same-value guards: a no-op setAttribute still fires
+  // attributeChangedCallback → #sync, so parent echoes would cascade.
   get label(): string {
     return this.getAttribute('label') ?? 'Layer';
   }
   set label(v: string) {
+    if (v === this.label) return;
     this.setAttribute('label', v);
   }
 
@@ -243,6 +248,7 @@ export class VolcaLayer extends HTMLElement {
     return this.getAttribute('name') ?? 'layer';
   }
   set name(v: string) {
+    if (v === this.name) return;
     this.setAttribute('name', v);
   }
 

@@ -28,7 +28,7 @@ branch; `main` stays React until this proves itself.
    lifecycle: the `statechange` refresh and auto-select-single-output logic.
    Verify against a real device. ✅ *store (15 unit tests) + picker done.*
 5. **Compose upward:** `Layer` → `Part` → `Kit`/`Patch` → `App`.
-   ⬅️ *Layer ✅; next: Part*
+   ⬅️ *Layer ✅, Part ✅; next: Patch/Kit*
 6. **Move `.test.ts` as you go.** Logic tests pass unchanged; only component
    tests need rewriting.
 7. **Migrate Storybook stories last**, per component, then swap Storybook to
@@ -160,4 +160,11 @@ can move one at a time inside the running app instead of big-bang.
   pitch picker rides in the slider's new `below` slot. Behaviour + a11y
   verified (Violations 0; 1 inconclusive from the embedded picker). Surfaced
   the `customElements.upgrade` and same-value-setter lessons above.
-  Next: `Part` → `Kit`/`Patch`.
+- ✅ `Part` → `<volca-part>` — second-tier composite nesting two
+  `<volca-layer>`s plus link/output/wave-folder controls and a preset picker
+  (`presets` array property). Emits the same `PartChange` union React's
+  `onChange` took, with layer events relabelled `{kind:'layer', slot, …}`.
+  Verified: full change pipeline across two shadow tiers, linked/pitch-quant
+  compound disable rules, preset → `part-replace` round-trip, patch-code
+  accept/reject. Violations 0. Cross-shadow layout via custom properties
+  (`--volca-layer-width`, group toggle columns). Next: `Patch`/`Kit`.
