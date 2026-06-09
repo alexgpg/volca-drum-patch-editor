@@ -61,20 +61,35 @@ template.innerHTML = `
       background: #f0f0f0;
       color: #888;
     }
+    .slider__below {
+      margin-top: 0.25rem;
+      display: grid;
+      grid-template-columns: 6rem auto;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    /* must beat the display:grid above (equal specificity — later wins) */
+    .slider__below[hidden] { display: none; }
   </style>
   <div class="slider__row">
     <span class="slider__label" id="label"></span>
     <input type="range" class="slider__range" aria-labelledby="label" />
     <input type="number" class="slider__value" aria-labelledby="label" />
   </div>
+  <div class="slider__below" hidden>
+    <span class="slider__label" id="below-label"></span>
+    <slot name="below"></slot>
+  </div>
 `;
 
 export class VolcaSlider extends HTMLElement {
-  static observedAttributes = ['value', 'label', 'min', 'max', 'step', 'disabled'];
+  static observedAttributes = ['value', 'label', 'min', 'max', 'step', 'disabled', 'below-label'];
 
   #range: HTMLInputElement;
   #number: HTMLInputElement;
   #labelEl: HTMLElement;
+  #belowRow: HTMLElement;
+  #belowLabelEl: HTMLElement;
   #value = 0;
 
   constructor() {
@@ -83,7 +98,17 @@ export class VolcaSlider extends HTMLElement {
     root.append(template.content.cloneNode(true));
     this.#range = root.querySelector<HTMLInputElement>('.slider__range')!;
     this.#number = root.querySelector<HTMLInputElement>('.slider__value')!;
-    this.#labelEl = root.querySelector<HTMLElement>('.slider__label')!;
+    this.#labelEl = root.querySelector<HTMLElement>('#label')!;
+    this.#belowRow = root.querySelector<HTMLElement>('.slider__below')!;
+    this.#belowLabelEl = root.querySelector<HTMLElement>('#below-label')!;
+
+    // The "below" row (React's below/belowLabel props, e.g. the pitch
+    // picker's Note row) is a named slot; it shows only when light-DOM
+    // content is actually slotted in.
+    const slot = root.querySelector<HTMLSlotElement>('slot[name="below"]')!;
+    slot.addEventListener('slotchange', () => {
+      this.#belowRow.hidden = slot.assignedElements().length === 0;
+    });
 
     // Range: every step during a drag is a live edit — set value and emit.
     this.#range.addEventListener('input', () => {
@@ -191,6 +216,7 @@ export class VolcaSlider extends HTMLElement {
   // Config (label, bounds, disabled) — never touches the number box's text.
   #renderConfig(): void {
     this.#labelEl.textContent = this.label;
+    this.#belowLabelEl.textContent = this.getAttribute('below-label') ?? '';
     const min = String(this.min);
     const max = String(this.max);
     const step = String(this.step);

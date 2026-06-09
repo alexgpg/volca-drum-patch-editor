@@ -28,6 +28,7 @@ branch; `main` stays React until this proves itself.
    lifecycle: the `statechange` refresh and auto-select-single-output logic.
    Verify against a real device. ✅ *store (15 unit tests) + picker done.*
 5. **Compose upward:** `Layer` → `Part` → `Kit`/`Patch` → `App`.
+   ⬅️ *Layer ✅; next: Part*
 6. **Move `.test.ts` as you go.** Logic tests pass unchanged; only component
    tests need rewriting.
 7. **Migrate Storybook stories last**, per component, then swap Storybook to
@@ -54,6 +55,24 @@ can move one at a time inside the running app instead of big-bang.
   HTML: `<volca-toggle label="Link Layers" checked>`.
 - **Shadow DOM** with a scoped `<style>`. Opt out (`this` as render root) only
   if reusing a global stylesheet is genuinely easier for a given component.
+- **ReactNode props become named slots.** `Slider`'s `below`/`belowLabel`
+  ReactNode props are light-DOM slotting: `<volca-slider><volca-pitch-picker
+  slot="below"/></volca-slider>`, with the row shown only when the slot has
+  assigned elements (`slotchange`). Corollary: a slotted child is a DOM
+  *child* of the host it's slotted into, so its bubbling events pass through
+  that host — listeners on the host must guard on `e.target`.
+- **Template-cloned custom children aren't upgraded in the host constructor.**
+  Cloning a template with custom elements inside a detached shadow root leaves
+  them un-upgraded; setting properties on them creates own properties that
+  permanently shadow the class accessors. Call `customElements.upgrade(root)`
+  right after cloning when the constructor (or a pre-connection
+  `attributeChangedCallback`) sets child properties. Bit `volca-layer`
+  (radio `options` vanished) and latently `volca-scaled-slider`.
+- **Guard same-value writes that trigger expensive work.** A no-op
+  `setAttribute` still fires `attributeChangedCallback`; if that rebuilds DOM
+  (e.g. the radio group's `name` → full option rebuild), a parent echoing
+  state back on every change would drop focus mid-interaction. Setters that
+  rebuild must skip identical values.
 - **Cross-shadow styling = custom properties, not selectors.** A parent can't
   reach a child's shadow internals (the React picker did `.midi-picker__live
   .toggle {…}`). Expose the knobs as CSS custom properties, which *do* pierce
@@ -134,4 +153,11 @@ can move one at a time inside the running app instead of big-bang.
   view, and its controls call the store. All five views + Live/Disconnect
   interactions verified; Violations 0. `MidiController implements MidiSource`,
   so the real store is a drop-in (the story uses a fake — Web MIDI is absent
-  in Storybook). Next: composites (`Layer` → `Part` → `Kit`/`Patch`).
+  in Storybook).
+- ✅ `Layer` → `<volca-layer>` — the first composite: a static template of six
+  leaf kinds wired once, one `#sync()` pushing state down, `change` re-emitted
+  as `{param, value}` and patch-code `apply` decoded into `replace`. The
+  pitch picker rides in the slider's new `below` slot. Behaviour + a11y
+  verified (Violations 0; 1 inconclusive from the embedded picker). Surfaced
+  the `customElements.upgrade` and same-value-setter lessons above.
+  Next: `Part` → `Kit`/`Patch`.

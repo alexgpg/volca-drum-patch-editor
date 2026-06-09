@@ -55,6 +55,10 @@ export class VolcaScaledSlider extends HTMLElement {
     super();
     const root = this.attachShadow({ mode: 'open' });
     root.append(template.content.cloneNode(true));
+    // Upgrade the template-cloned inner slider now: #render() may run from
+    // attributeChangedCallback before connection (e.g. parser-set `param`),
+    // and property sets on an un-upgraded element shadow its accessors.
+    customElements.upgrade(root);
     this.#slider = root.querySelector('volca-slider')!;
 
     // Inner LCD change → snap to the nearest CC, re-emit as a CC change.

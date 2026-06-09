@@ -156,7 +156,11 @@ export class VolcaIconRadioGroup extends HTMLElement {
   get name(): string {
     return this.getAttribute('name') ?? '';
   }
+  // Same-value guard: a no-op setAttribute still fires attributeChangedCallback,
+  // and name changes trigger a full option rebuild (which would drop focus when
+  // a parent echoes state back on every change).
   set name(v: string) {
+    if ((v ?? '') === this.name) return;
     this.setAttribute('name', v ?? '');
   }
 
