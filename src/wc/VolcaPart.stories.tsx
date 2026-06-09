@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef } from 'react';
 import { useArgs } from 'storybook/preview-api';
-import { fn } from 'storybook/test';
+import { expect, fn, waitFor } from 'storybook/test';
 
 import './volca-part';
 import type { VolcaPart } from './volca-part';
@@ -167,4 +167,21 @@ const mockPresets: PartPreset[] = [
 
 export const WithPresets: Story = {
   args: { label: 'Part 1', name: 'p1-presets', presets: mockPresets },
+  // The preset selection is derived, not remembered: picking an entry shows
+  // it (once the applied state round-trips), and any edit that diverges from
+  // the preset drops the select back to the placeholder.
+  play: async ({ canvasElement }) => {
+    const part = canvasElement.querySelector('volca-part')!;
+    const root = part.shadowRoot!;
+    const select = root.querySelector<HTMLSelectElement>('.part__preset-select')!;
+
+    select.value = '1';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    await waitFor(() => expect(select.value).toBe('1'));
+    await waitFor(() => expect(part.value.comment).toBe('Snare A1 Short Book'));
+
+    // Flip Pitch Quantization — the part no longer equals the preset.
+    root.querySelector('.part__pq')!.shadowRoot!.querySelector('input')!.click();
+    await waitFor(() => expect(select.value).toBe(''));
+  },
 };

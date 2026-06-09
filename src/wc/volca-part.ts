@@ -24,6 +24,7 @@ import type { VolcaLayer, LayerChangeDetail } from './volca-layer';
 import type { VolcaPatchCode } from './volca-patch-code';
 import type { VolcaScaledSlider } from './volca-scaled-slider';
 import type { VolcaToggle } from './volca-toggle';
+import { matchPresetIndex } from '../lib/libraryMatch';
 import { decodePart, encodePart } from '../lib/patchCodec';
 import type { PartPreset } from '../lib/partLibrary';
 import type { LayerState } from '../types/layer';
@@ -225,7 +226,8 @@ export class VolcaPart extends HTMLElement {
 
     this.#presetSelect.addEventListener('change', () => {
       const preset = this.#presets[Number(this.#presetSelect.value)];
-      // back to the placeholder either way — the select is a launcher, not state
+      // Reset to the placeholder; the derived match in #sync lights the
+      // picked entry back up once the new value actually arrives.
       this.#presetSelect.value = '';
       if (preset) this.#emit({ kind: 'part-replace', value: preset.part });
     });
@@ -289,6 +291,7 @@ export class VolcaPart extends HTMLElement {
   set presets(v: PartPreset[]) {
     this.#presets = v ?? [];
     this.#renderPresets();
+    this.#syncPresetSelection();
   }
 
   get label(): string {
@@ -338,6 +341,12 @@ export class VolcaPart extends HTMLElement {
     this.#presetSelect.value = '';
   }
 
+  // Derived, not remembered: show the preset the part currently equals.
+  #syncPresetSelection(): void {
+    const i = matchPresetIndex(this.#presets, this.#value);
+    this.#presetSelect.value = i === -1 ? '' : String(i);
+  }
+
   #sync(): void {
     const v = this.#value;
     const disabled = this.disabled;
@@ -352,6 +361,7 @@ export class VolcaPart extends HTMLElement {
     this.#patchCode.value = encodePart(v);
     this.#patchCode.disabled = disabled;
     this.#presetSelect.disabled = disabled;
+    this.#syncPresetSelection();
 
     this.#linkToggle.checked = v.linked;
     this.#linkToggle.disabled = disabled;

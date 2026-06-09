@@ -190,3 +190,15 @@ can move one at a time inside the running app instead of big-bang.
   real-device pass (Connect MIDI → Live → knob → CCs) — automated browsers
   can't answer the MIDI permission prompt.
   Next: teardown (remove React components/deps, swap Storybook).
+- ✅ Real-device pass done (Connect MIDI → Live → device reacts).
+- ✅ Derived library selection (user feedback from the device pass): the
+  preset/kit selects now *show* the entry the current state equals, instead
+  of snapping to the placeholder. Derived, not remembered — `lib/libraryMatch`
+  compares via `encodePart()` on every sync, so the selection lights up on
+  apply, clears on any divergent edit, and re-lights if you edit your way
+  back. Kit matching honours partial-kit semantics (only the parts the kit
+  specifies count). Tested at both layers: 11 unit tests
+  (`libraryMatch.test.ts`) + Storybook `play` interaction tests on the
+  WC Part/Kit stories (green in the Storybook UI; note: the headless
+  `vitest --project storybook` runner currently crashes at browser launch in
+  this environment — "[birpc] rpc is closed" — runs in the UI instead).

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef } from 'react';
 import { useArgs } from 'storybook/preview-api';
-import { fn } from 'storybook/test';
+import { expect, fn, waitFor } from 'storybook/test';
 
 import './volca-kit';
 import type { VolcaKit } from './volca-kit';
@@ -95,7 +95,25 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  // Derived kit selection: applying a library kit lights its entry up;
+  // renaming the kit diverges from the entry and clears it.
+  play: async ({ canvasElement }) => {
+    const kit = canvasElement.querySelector('volca-kit')!;
+    const root = kit.shadowRoot!;
+    const select = root.querySelector<HTMLSelectElement>('.kit__preset-select')!;
+
+    select.value = '0';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    await waitFor(() => expect(select.value).toBe('0'));
+    await waitFor(() => expect(kit.value.comment).toBe('Sample Kit 1'));
+
+    const name = root.querySelector<HTMLInputElement>('.kit__comment')!;
+    name.value = 'Sample Kit 1 (edited)';
+    name.dispatchEvent(new Event('input', { bubbles: true }));
+    await waitFor(() => expect(select.value).toBe(''));
+  },
+};
 
 export const WithComment: Story = {
   args: { value: { ...DEFAULT_KIT, comment: 'Funky Drums' } },

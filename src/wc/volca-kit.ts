@@ -14,6 +14,7 @@
 
 import './volca-patch-code';
 import type { VolcaPatchCode } from './volca-patch-code';
+import { matchKitIndex } from '../lib/libraryMatch';
 import { decodeKit, encodeKit } from '../lib/patchCodec';
 import {
   DEFAULT_KIT,
@@ -179,6 +180,7 @@ export class VolcaKit extends HTMLElement {
   set kits(v: PartialKit[]) {
     this.#kits = v ?? [];
     this.#renderKits();
+    this.#syncKitSelection();
   }
 
   get disabled(): boolean {
@@ -212,6 +214,13 @@ export class VolcaKit extends HTMLElement {
     this.#presetSelect.value = '';
   }
 
+  // Derived, not remembered: show the library kit the state currently
+  // matches (comment + every part the partial kit specifies).
+  #syncKitSelection(): void {
+    const i = matchKitIndex(this.#kits, this.#value);
+    this.#presetSelect.value = i === -1 ? '' : String(i);
+  }
+
   #sync(): void {
     const v = this.#value;
     const disabled = this.disabled;
@@ -224,6 +233,7 @@ export class VolcaKit extends HTMLElement {
     this.#patchCode.value = encodeKit(v);
     this.#patchCode.disabled = disabled;
     this.#presetSelect.disabled = disabled;
+    this.#syncKitSelection();
   }
 }
 
