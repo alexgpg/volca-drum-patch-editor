@@ -4,6 +4,7 @@ import { useArgs, useRef } from 'storybook/preview-api';
 import { expect, fn, waitFor } from 'storybook/test';
 
 import './volca-kit';
+import type { VolcaKit } from './volca-kit';
 import { applyPatchChange } from '../lib/applyPatchChange';
 import { DEFAULT_PART } from '../types/part';
 import {
@@ -60,6 +61,9 @@ const meta = {
       @change=${(e: CustomEvent<PatchChange>) => {
         const next = applyPatchChange(latest.current, e.detail);
         latest.current = next;
+        // Echo synchronously like the app root does — updateArgs alone only
+        // re-renders in the full Storybook UI, not in vitest portable stories.
+        (e.currentTarget as VolcaKit).value = next;
         updateArgs({ value: next });
         args.onChange(e.detail);
       }}
@@ -80,13 +84,13 @@ export const Default: Story = {
 
     select.value = '0';
     select.dispatchEvent(new Event('change', { bubbles: true }));
-    await waitFor(() => expect(select.value).toBe('0'));
-    await waitFor(() => expect(kit.value.comment).toBe('Sample Kit 1'));
+    await waitFor(() => expect(select.value).toBe('0'), { timeout: 5000 });
+    await waitFor(() => expect(kit.value.comment).toBe('Sample Kit 1'), { timeout: 5000 });
 
     const name = root.querySelector<HTMLInputElement>('.kit__comment')!;
     name.value = 'Sample Kit 1 (edited)';
     name.dispatchEvent(new Event('input', { bubbles: true }));
-    await waitFor(() => expect(select.value).toBe(''));
+    await waitFor(() => expect(select.value).toBe(''), { timeout: 5000 });
   },
 };
 

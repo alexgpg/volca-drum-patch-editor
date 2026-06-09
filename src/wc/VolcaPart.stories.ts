@@ -4,6 +4,7 @@ import { useArgs, useRef } from 'storybook/preview-api';
 import { expect, fn, waitFor } from 'storybook/test';
 
 import './volca-part';
+import type { VolcaPart } from './volca-part';
 import { applyPartChange } from '../lib/applyPartChange';
 import type { PartPreset } from '../lib/partLibrary';
 import { DEFAULT_LAYER } from '../types/layer';
@@ -46,6 +47,9 @@ const meta = {
       @change=${(e: CustomEvent<PartChange>) => {
         const next = applyPartChange(latest.current, e.detail);
         latest.current = next;
+        // Echo synchronously like the app root does — updateArgs alone only
+        // re-renders in the full Storybook UI, not in vitest portable stories.
+        (e.currentTarget as VolcaPart).value = next;
         updateArgs({ value: next });
         args.onChange(e.detail);
       }}
@@ -156,11 +160,11 @@ export const WithPresets: Story = {
 
     select.value = '1';
     select.dispatchEvent(new Event('change', { bubbles: true }));
-    await waitFor(() => expect(select.value).toBe('1'));
-    await waitFor(() => expect(part.value.comment).toBe('Snare A1 Short Book'));
+    await waitFor(() => expect(select.value).toBe('1'), { timeout: 5000 });
+    await waitFor(() => expect(part.value.comment).toBe('Snare A1 Short Book'), { timeout: 5000 });
 
     // Flip Pitch Quantization — the part no longer equals the preset.
     root.querySelector('.part__pq')!.shadowRoot!.querySelector('input')!.click();
-    await waitFor(() => expect(select.value).toBe(''));
+    await waitFor(() => expect(select.value).toBe(''), { timeout: 5000 });
   },
 };

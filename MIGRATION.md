@@ -206,9 +206,12 @@ can move one at a time inside the running app instead of big-bang.
   back. Kit matching honours partial-kit semantics (only the parts the kit
   specifies count). Tested at both layers: 11 unit tests
   (`libraryMatch.test.ts`) + Storybook `play` interaction tests on the
-  WC Part/Kit stories (green in the Storybook UI; note: the headless
-  `vitest --project storybook` runner currently crashes at browser launch in
-  this environment — "[birpc] rpc is closed" — runs in the UI instead).
+  Part/Kit stories. The headless runner (`vitest run --project storybook`,
+  49 tests) is green post-teardown — its earlier launch crash was caused by
+  the React-era dependency state. One portable-stories gotcha surfaced:
+  `updateArgs` only re-renders in the full Storybook UI, so story change
+  handlers echo the new state onto the element synchronously (like the app
+  root does) and keep `updateArgs` for the Controls panel.
 - ✅ **Teardown — migration complete.** React sources deleted
   (`App.tsx`, `main.tsx`, `components/`, `useMidi.ts`, the Storybook example
   `stories/`), all React/`@storybook/react-vite` dependencies removed, ESLint
