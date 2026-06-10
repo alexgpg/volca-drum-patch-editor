@@ -19,8 +19,11 @@
 import './volca-toggle';
 import type { MidiSource } from '../lib/midiController';
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host { display: block; }
     .midi-picker {
@@ -28,23 +31,24 @@ template.innerHTML = `
       align-items: center;
       gap: 0.75rem;
       padding: 0.5rem 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background: #fafafa;
-      font-family: ui-sans-serif, system-ui, sans-serif;
+      border: 1px solid var(--_border-soft);
+      background: var(--_surface-1);
+      font-family: var(--_font-ui);
       font-size: 0.875rem;
     }
-    .midi-picker--message { color: #555; }
+    .midi-picker--message,
+    .midi-picker__message,
+    .midi-picker__prefix { color: var(--_muted); }
     .midi-picker__connect {
       padding: 0.4rem 0.9rem;
-      border: 1px solid #2b6cb0;
-      border-radius: 6px;
-      background: #2b6cb0;
-      color: #fff;
+      border: 1px solid var(--_accent);
+      border-radius: 4px;
+      background: var(--_accent);
+      color: var(--_on-accent);
       font: inherit;
       cursor: pointer;
     }
-    .midi-picker__connect:hover { background: #2257a0; }
+    .midi-picker__connect:hover { background: var(--_accent-hover); }
     .midi-picker__dot {
       width: 0.625rem;
       height: 0.625rem;
@@ -56,7 +60,6 @@ template.innerHTML = `
       box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.2);
     }
     .midi-picker__dot--off { background: #cbd5e0; }
-    .midi-picker__message { color: #555; }
     .midi-picker__select-label {
       display: flex;
       align-items: center;
@@ -64,21 +67,11 @@ template.innerHTML = `
       flex: 1;
       min-width: 0;
     }
-    .midi-picker__prefix { color: #555; white-space: nowrap; }
+    .midi-picker__prefix { white-space: nowrap; }
     .midi-picker__select {
       flex: 1;
       min-width: 0;
       padding: 0.25rem 0.4rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fff;
-      font: inherit;
-      color: #333;
-    }
-    .midi-picker__select:focus {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-      border-color: #2b6cb0;
     }
     /* Compact the Live toggle by theming it from outside — selectors can't
        reach into its shadow root, but these custom properties can. */
@@ -90,17 +83,8 @@ template.innerHTML = `
     .midi-picker__disconnect {
       flex-shrink: 0;
       padding: 0.3rem 0.65rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fff;
-      color: #333;
-      font: inherit;
+      background: var(--_surface);
       font-size: 0.8125rem;
-      cursor: pointer;
-    }
-    .midi-picker__disconnect:hover {
-      background: #f3f3f3;
-      border-color: #999;
     }
   </style>
   <div class="root"></div>
@@ -214,7 +198,7 @@ export class VolcaMidiDevicePicker extends HTMLElement {
     label.append(prefix);
 
     const select = document.createElement('select');
-    select.className = 'midi-picker__select';
+    select.className = 'midi-picker__select control';
     if (selected === null) {
       const placeholder = document.createElement('option');
       placeholder.value = '';
@@ -249,7 +233,7 @@ export class VolcaMidiDevicePicker extends HTMLElement {
     if (selected !== null) {
       const disconnect = document.createElement('button');
       disconnect.type = 'button';
-      disconnect.className = 'midi-picker__disconnect';
+      disconnect.className = 'midi-picker__disconnect btn';
       disconnect.textContent = 'Disconnect';
       disconnect.addEventListener('click', () => {
         c.setLive(false);

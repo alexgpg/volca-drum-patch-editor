@@ -23,94 +23,34 @@ import {
   type PatchChange,
 } from '../types/patch';
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host { display: block; }
-    .kit {
-      margin-inline: 1rem;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      background: #f3f3f3;
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      box-sizing: border-box;
-    }
-    .kit__title {
-      margin: 0;
-      font-size: 1.125rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .kit__title:hover { color: #2b6cb0; }
+    .kit { margin-inline: 1rem; }
     .kit__body {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
       margin-top: 0.75rem;
     }
-    .kit__preset {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .kit__preset[hidden] { display: none; }
-    .kit__preset-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #555;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .kit__preset-select {
-      flex: 1;
-      padding: 0.375rem 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fff;
-      font: inherit;
-      font-size: 0.875rem;
-      color: #333;
-    }
-    .kit__preset-select:focus {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-      border-color: #2b6cb0;
-    }
-    .kit__preset-select:disabled {
-      background: #f0f0f0;
-      color: #888;
-    }
     .kit__comment {
       width: 100%;
-      box-sizing: border-box;
-      padding: 0.375rem 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fff;
-      font: inherit;
       font-size: 1rem;
       font-weight: 600;
-      color: #333;
-    }
-    .kit__comment:focus {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-      border-color: #2b6cb0;
-    }
-    .kit__comment:disabled {
-      background: #f0f0f0;
-      color: #888;
     }
   </style>
-  <details class="kit" open>
-    <summary class="kit__title"></summary>
+  <details class="kit card" open>
+    <summary class="kit__title card-title"></summary>
     <div class="kit__body">
-      <label class="kit__preset" hidden>
-        <span class="kit__preset-label">Kit</span>
-        <select class="kit__preset-select"></select>
+      <label class="kit__preset preset-row" hidden>
+        <span class="group-label">Kit</span>
+        <select class="kit__preset-select control"></select>
       </label>
-      <input type="text" class="kit__comment" placeholder="kit name" aria-label="Kit name" />
+      <input type="text" class="kit__comment control" placeholder="kit name" aria-label="Kit name" />
       <volca-patch-code placeholder="# kit name&#10;vP1:..."></volca-patch-code>
     </div>
   </details>

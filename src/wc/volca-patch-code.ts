@@ -19,8 +19,11 @@
  * We add aria-label="Patch code" so screen readers announce the field.
  */
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host { display: block; }
     .patch-code {
@@ -31,64 +34,25 @@ template.innerHTML = `
     .patch-code__input {
       flex: 1 1 auto;
       min-width: 0;
-      box-sizing: border-box;
       padding: 0.25rem 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fff;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family: var(--_font-mono);
       font-size: 0.75rem;
       line-height: 1.4;
-      color: #333;
       resize: none;
       overflow-wrap: anywhere;
       overflow: hidden;
       white-space: pre-wrap;
     }
-    .patch-code__input:focus {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-      border-color: #2b6cb0;
-    }
-    .patch-code__input--invalid {
-      border-color: #c53030;
-    }
-    .patch-code__input--invalid:focus {
-      outline-color: #c53030;
-      border-color: #c53030;
-    }
-    .patch-code__input:disabled {
-      background: #f0f0f0;
-      color: #888;
-    }
     .patch-code__copy {
       flex: 0 0 auto;
       padding: 0.25rem 0.625rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fafafa;
-      font-family: inherit;
       font-size: 0.75rem;
-      color: #333;
-      cursor: pointer;
-    }
-    .patch-code__copy:hover:not(:disabled) {
-      background: #f0f0f0;
-    }
-    .patch-code__copy:focus-visible {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-    }
-    .patch-code__copy:disabled {
-      background: #f0f0f0;
-      color: #888;
-      cursor: not-allowed;
     }
   </style>
   <div class="patch-code">
-    <textarea class="patch-code__input" rows="1" aria-label="Patch code"
+    <textarea class="patch-code__input control" rows="1" aria-label="Patch code"
       spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
-    <button type="button" class="patch-code__copy" title="Copy to clipboard">Copy</button>
+    <button type="button" class="patch-code__copy btn" title="Copy to clipboard">Copy</button>
   </div>
 `;
 
@@ -221,7 +185,7 @@ export class VolcaPatchCode extends HTMLElement {
   }
 
   #setInvalid(invalid: boolean): void {
-    this.#textarea.classList.toggle('patch-code__input--invalid', invalid);
+    this.#textarea.classList.toggle('control--invalid', invalid);
   }
 
   #renderConfig(): void {

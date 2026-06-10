@@ -31,8 +31,11 @@ import {
   type PatchChange,
 } from '../types/patch';
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host { display: block; }
     .app {
@@ -45,7 +48,7 @@ template.innerHTML = `
       top: 0;
       z-index: 1;
       padding: 0.75rem 1rem 0;
-      background: linear-gradient(to bottom, #fff 0%, #fff 70%, rgba(255, 255, 255, 0));
+      background: linear-gradient(to bottom, var(--_surface) 70%, transparent);
     }
     volca-patch {
       /* React's ".app > .patch { padding-top: 0 }" — through the boundary */

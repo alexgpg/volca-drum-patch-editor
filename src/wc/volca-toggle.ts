@@ -13,17 +13,20 @@
  * <Toggle> this replaces lives at src/components/controls/Toggle.tsx.
  */
 
+import { SHARED_CSS } from './shared-styles';
+
 // Parsed once at module load, cloned per instance.
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host {
       display: inline-block;
-      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-family: var(--_font-ui);
       font-size: 0.875rem;
     }
     :host([disabled]) {
-      color: #888;
+      color: var(--_text-disabled);
     }
     /* The <label> wraps the control so the checkbox takes its accessible
        name from the text — and clicking the row toggles it. */
@@ -48,12 +51,12 @@ template.innerHTML = `
       height: 1rem;
       margin: 0;
       justify-self: start;
-      accent-color: #2b6cb0;
+      accent-color: var(--_accent);
       cursor: inherit;
     }
     .state {
       text-align: right;
-      color: #555;
+      color: var(--_muted);
       font-variant-numeric: tabular-nums;
     }
   </style>

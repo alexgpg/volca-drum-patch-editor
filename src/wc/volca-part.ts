@@ -30,91 +30,33 @@ import type { PartPreset } from '../lib/partLibrary';
 import type { LayerState } from '../types/layer';
 import { DEFAULT_PART, type PartChange, type PartState } from '../types/part';
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host { display: block; }
-    .part {
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      background: #f3f3f3;
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      box-sizing: border-box;
-    }
     .part__body {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
       margin-top: 0.75rem;
     }
-    .part__title {
-      margin: 0;
-      font-size: 1.125rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .part__title:hover { color: #2b6cb0; }
     .part__comment {
       width: 100%;
-      box-sizing: border-box;
-      padding: 0.375rem 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fff;
-      font: inherit;
       font-size: 0.875rem;
-      color: #333;
     }
-    .part__comment:focus {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-      border-color: #2b6cb0;
-    }
-    .part__comment:disabled {
-      background: #f0f0f0;
-      color: #888;
-    }
-    .part__preset {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .part__preset[hidden] { display: none; }
-    .part__preset-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #555;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .part__preset-select {
-      flex: 1;
-      padding: 0.375rem 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fff;
-      font: inherit;
-      font-size: 0.875rem;
-      color: #333;
-    }
-    .part__preset-select:focus {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-      border-color: #2b6cb0;
-    }
-    .part__preset-select:disabled {
-      background: #f0f0f0;
-      color: #888;
+    /* inner boxes (link row, output/wave-folder header) */
+    .part__box {
+      background: var(--_surface);
+      border: 1px solid var(--_border-soft);
     }
     .part__header {
       display: flex;
       flex-direction: column;
       gap: 1rem;
       padding: 0.75rem 1rem;
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
     }
     .part__group {
       display: flex;
@@ -124,21 +66,11 @@ template.innerHTML = `
          the shadow boundary via the custom property) */
       --volca-toggle-columns: 9rem 1fr 3rem;
     }
-    .part__group-label {
-      margin: 0 0 0.25rem 0;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #555;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
+    .part__group .group-label { margin-bottom: 0.25rem; }
     .part__link {
       display: flex;
       justify-content: center;
       padding: 0.5rem;
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
       --volca-toggle-columns: auto auto auto;
       --volca-toggle-gap: 0.5rem;
     }
@@ -149,31 +81,31 @@ template.innerHTML = `
       --volca-layer-width: auto;
     }
   </style>
-  <details class="part" open>
-    <summary class="part__title"></summary>
+  <details class="part card" open>
+    <summary class="part__title card-title"></summary>
     <div class="part__body">
-      <label class="part__preset" hidden>
-        <span class="part__preset-label">Preset</span>
-        <select class="part__preset-select"></select>
+      <label class="part__preset preset-row" hidden>
+        <span class="group-label">Preset</span>
+        <select class="part__preset-select control"></select>
       </label>
-      <input type="text" class="part__comment" placeholder="comment" aria-label="Part comment" />
+      <input type="text" class="part__comment control" placeholder="comment" aria-label="Part comment" />
       <volca-patch-code placeholder="vP1:..."></volca-patch-code>
-      <div class="part__link">
+      <div class="part__link part__box">
         <volca-toggle class="part__link-toggle" label="Link Layers"></volca-toggle>
       </div>
       <div class="part__layers">
         <volca-layer class="part__l1"></volca-layer>
         <volca-layer class="part__l2"></volca-layer>
       </div>
-      <div class="part__header">
+      <div class="part__header part__box">
         <div class="part__group">
-          <h3 class="part__group-label">Output</h3>
+          <h3 class="group-label">Output</h3>
           <volca-scaled-slider param="pan"></volca-scaled-slider>
           <volca-scaled-slider param="send"></volca-scaled-slider>
           <volca-toggle class="part__pq" label="Pitch Quantization"></volca-toggle>
         </div>
         <div class="part__group">
-          <h3 class="part__group-label">Wave folder</h3>
+          <h3 class="group-label">Wave folder</h3>
           <volca-scaled-slider param="drive"></volca-scaled-slider>
           <volca-scaled-slider param="bitReduction"></volca-scaled-slider>
           <volca-scaled-slider param="fold"></volca-scaled-slider>

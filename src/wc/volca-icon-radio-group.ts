@@ -23,8 +23,11 @@ export interface IconRadioOption {
   iconSrc?: string;
 }
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host {
       display: block;
@@ -36,7 +39,7 @@ template.innerHTML = `
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
-      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-family: var(--_font-ui);
       font-size: 0.875rem;
     }
     .icon-radio-group__label {
@@ -55,15 +58,15 @@ template.innerHTML = `
       min-width: 2.25rem;
       height: 2.25rem;
       padding: 0 0.5rem;
-      border: 1px solid #ccc;
+      border: 1px solid var(--_border);
       border-radius: 4px;
       cursor: pointer;
-      background: #fff;
+      background: var(--_surface);
     }
     .icon-radio-group__option.is-checked {
-      background: #2b6cb0;
-      color: #fff;
-      border-color: #2b6cb0;
+      background: var(--_accent);
+      color: var(--_on-accent);
+      border-color: var(--_accent);
     }
     .icon-radio-group__option input[type='radio'] {
       position: absolute;

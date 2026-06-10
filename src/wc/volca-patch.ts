@@ -24,8 +24,11 @@ import {
   type PatchState,
 } from '../types/patch';
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host { display: block; }
     .patch {
@@ -34,7 +37,7 @@ template.innerHTML = `
       gap: 1rem;
       /* themable from outside (the app trims the top under its sticky header) */
       padding: var(--volca-patch-padding, 1rem);
-      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-family: var(--_font-ui);
     }
   </style>
   <div class="patch">

@@ -123,6 +123,25 @@ can move one at a time inside the running app instead of big-bang.
   (via a ref — set properties in, listen for the `change` event out). We swap
   to `@storybook/web-components-vite` at the very end.
 
+## Styling
+
+- **Design tokens + shared recipes** live in `src/wc/shared-styles.ts`;
+  every template starts with `<style>${SHARED_CSS}</style>` followed by its
+  local layout styles. Injected as text rather than `adoptedStyleSheets`
+  deliberately: adopted sheets cascade *after* `<style>` elements, which
+  would let shared base rules beat local overrides.
+- **Tokens**: public `--volca-*` custom properties (which inherit through
+  shadow boundaries from the document) feed private `--_*` names whose
+  fallbacks are the light theme. Component CSS uses only `var(--_*)` — never
+  raw colors. **A theme is therefore an additive block of `--volca-*`
+  overrides at `:root`** (e.g. behind `[data-theme='dark']` or
+  `prefers-color-scheme`) — no component changes needed.
+- **Shared recipes**: `.control` (inputs/selects/textareas incl. focus,
+  disabled, invalid), `.btn`, `.card`/`.card--soft` (frames), `.card-title`,
+  `.group-label`, `.preset-row`.
+- **Frames are squared** (no border-radius on cards/boxes) by design;
+  the 4px radius stays on interactive controls.
+
 ## Status
 
 - ✅ Branch created off latest `main`.

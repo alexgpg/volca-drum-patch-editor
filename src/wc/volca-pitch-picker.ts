@@ -29,8 +29,11 @@ const ALL_LABELS: string[] = Array.from({ length: 128 }, (_, cc) =>
   pitchToLabel(ccToDisplayPitch(cc)),
 );
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host { display: inline-block; }
     .pitch-picker {
@@ -38,31 +41,13 @@ template.innerHTML = `
       align-items: center;
       gap: 0.25rem;
     }
-    .pitch-picker__btn {
+    .pitch-picker__step {
       flex: 0 0 auto;
       padding: 0;
-      border: 1px solid #ccc;
-      background: #fafafa;
-      font-family: inherit;
-      color: #333;
-      cursor: pointer;
-    }
-    .pitch-picker__btn:hover:not(:disabled) { background: #f0f0f0; }
-    .pitch-picker__btn:disabled {
-      background: #f0f0f0;
-      color: #888;
-      cursor: not-allowed;
-    }
-    .pitch-picker__step {
       width: 1.5rem;
       height: 1.5rem;
-      border-radius: 4px;
       font-size: 0.875rem;
       line-height: 1;
-    }
-    .pitch-picker__step:focus-visible {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
     }
     .pitch-picker__field {
       position: relative;
@@ -71,33 +56,19 @@ template.innerHTML = `
     }
     .pitch-picker__input {
       width: 4rem;
-      box-sizing: border-box;
       padding: 0.125rem 0.375rem;
-      border: 1px solid #ccc;
       border-right: none;
       border-radius: 4px 0 0 4px;
-      background: #fff;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family: var(--_font-mono);
       font-size: 0.8125rem;
-      color: #333;
     }
     .pitch-picker__input:focus {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-      border-color: #2b6cb0;
       position: relative;
       z-index: 1;
     }
-    .pitch-picker__input--invalid { border-color: #c53030; }
-    .pitch-picker__input--invalid:focus {
-      outline-color: #c53030;
-      border-color: #c53030;
-    }
-    .pitch-picker__input:disabled {
-      background: #f0f0f0;
-      color: #888;
-    }
     .pitch-picker__open {
+      flex: 0 0 auto;
+      padding: 0;
       width: 1.25rem;
       border-radius: 0 4px 4px 0;
       font-size: 0.75rem;
@@ -113,11 +84,11 @@ template.innerHTML = `
       max-height: 16rem;
       overflow-y: auto;
       scrollbar-gutter: stable;
-      border: 1px solid #ccc;
+      border: 1px solid var(--_border);
       border-radius: 4px;
-      background: #fff;
+      background: var(--_surface);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family: var(--_font-mono);
       font-size: 0.8125rem;
     }
     /* hidden must beat the display:flex above (equal specificity → later wins) */
@@ -126,30 +97,30 @@ template.innerHTML = `
       flex: 0 0 auto;
       padding: 0.25rem 0.75rem;
       border: none;
-      background: #fff;
+      background: var(--_surface);
       text-align: left;
-      color: #333;
+      color: var(--_text);
       cursor: pointer;
       white-space: nowrap;
     }
-    .pitch-picker__option:hover { background: #ebf2fa; }
+    .pitch-picker__option:hover { background: var(--_accent-soft); }
     .pitch-picker__option.is-selected {
-      background: #2b6cb0;
-      color: #fff;
+      background: var(--_accent);
+      color: var(--_on-accent);
     }
   </style>
   <div class="pitch-picker">
-    <button type="button" class="pitch-picker__btn pitch-picker__step" data-step="-1"
+    <button type="button" class="pitch-picker__step btn" data-step="-1"
       aria-label="One semitone down">−</button>
     <div class="pitch-picker__field">
-      <input type="text" class="pitch-picker__input" role="combobox" aria-expanded="false"
+      <input type="text" class="pitch-picker__input control" role="combobox" aria-expanded="false"
         aria-controls="pitch-listbox" aria-autocomplete="list" aria-label="Pitch"
         spellcheck="false" autocorrect="off" autocapitalize="off" />
-      <button type="button" class="pitch-picker__btn pitch-picker__open"
+      <button type="button" class="pitch-picker__open btn"
         aria-label="Open note picker" aria-haspopup="listbox" tabindex="-1">▾</button>
       <div id="pitch-listbox" class="pitch-picker__popover" role="listbox" aria-label="Notes" hidden></div>
     </div>
-    <button type="button" class="pitch-picker__btn pitch-picker__step" data-step="1"
+    <button type="button" class="pitch-picker__step btn" data-step="1"
       aria-label="One semitone up">+</button>
   </div>
 `;
@@ -320,7 +291,7 @@ export class VolcaPitchPicker extends HTMLElement {
   }
 
   #setInvalid(invalid: boolean): void {
-    this.#input.classList.toggle('pitch-picker__input--invalid', invalid);
+    this.#input.classList.toggle('control--invalid', invalid);
   }
 
   #updateSelection(): void {

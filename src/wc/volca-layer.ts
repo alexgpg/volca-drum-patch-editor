@@ -40,19 +40,17 @@ export interface LayerChangeDetail<K extends keyof LayerState = keyof LayerState
   value: LayerState[K];
 }
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host { display: block; }
     .layer {
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      padding: 1rem;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background: #fafafa;
-      font-family: ui-sans-serif, system-ui, sans-serif;
       /* Width is themable from outside (custom properties pierce the shadow
          boundary); <volca-part> sets it to auto in its responsive grid. */
       width: var(--volca-layer-width, 22rem);
@@ -64,23 +62,8 @@ template.innerHTML = `
     }
     .layer__comment {
       width: 100%;
-      box-sizing: border-box;
       padding: 0.25rem 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #fff;
-      font: inherit;
       font-size: 0.8125rem;
-      color: #333;
-    }
-    .layer__comment:focus {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-      border-color: #2b6cb0;
-    }
-    .layer__comment:disabled {
-      background: #f0f0f0;
-      color: #888;
     }
     .layer__radios {
       display: flex;
@@ -93,9 +76,9 @@ template.innerHTML = `
       gap: 0.5rem;
     }
   </style>
-  <section class="layer">
+  <section class="layer card card--soft">
     <h3 class="layer__title"></h3>
-    <input type="text" class="layer__comment" placeholder="comment" aria-label="Layer comment" />
+    <input type="text" class="layer__comment control" placeholder="comment" aria-label="Layer comment" />
     <volca-patch-code placeholder="vL1:..."></volca-patch-code>
     <div class="layer__radios">
       <volca-icon-radio-group data-param="soundSource" label="Sound Source"></volca-icon-radio-group>

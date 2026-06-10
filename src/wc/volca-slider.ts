@@ -21,12 +21,15 @@
  * doesn't churn an attribute on every pixel).
  */
 
+import { SHARED_CSS } from './shared-styles';
+
 const template = document.createElement('template');
 template.innerHTML = `
+  <style>${SHARED_CSS}</style>
   <style>
     :host {
       display: block;
-      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-family: var(--_font-ui);
       font-size: 0.875rem;
     }
     .slider__row {
@@ -45,21 +48,7 @@ template.innerHTML = `
       width: 3rem;
       text-align: right;
       font-variant-numeric: tabular-nums;
-      color: #333;
-      border: 1px solid #ccc;
-      border-radius: 4px;
       padding: 0.125rem 0.25rem;
-      font: inherit;
-      background: #fff;
-    }
-    .slider__value:focus {
-      outline: 2px solid #2b6cb0;
-      outline-offset: 1px;
-      border-color: #2b6cb0;
-    }
-    .slider__value:disabled {
-      background: #f0f0f0;
-      color: #888;
     }
     .slider__below {
       margin-top: 0.25rem;
@@ -74,7 +63,7 @@ template.innerHTML = `
   <div class="slider__row">
     <span class="slider__label" id="label"></span>
     <input type="range" class="slider__range" aria-labelledby="label" />
-    <input type="number" class="slider__value" aria-labelledby="label" />
+    <input type="number" class="slider__value control" aria-labelledby="label" />
   </div>
   <div class="slider__below" hidden>
     <span class="slider__label" id="below-label"></span>
