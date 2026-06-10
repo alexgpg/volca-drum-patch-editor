@@ -48,7 +48,9 @@ template.innerHTML = `
       top: 0;
       z-index: 1;
       padding: 0.75rem 1rem 0;
-      background: linear-gradient(to bottom, var(--_surface) 70%, transparent);
+      /* veil over scrolled content — fades from the page background
+         (--bg is index.css's page token, themed there for dark) */
+      background: linear-gradient(to bottom, var(--bg, light-dark(#fff, #16171d)) 70%, transparent);
     }
     volca-patch {
       /* React's ".app > .patch { padding-top: 0 }" — through the boundary */

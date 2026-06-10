@@ -132,10 +132,13 @@ can move one at a time inside the running app instead of big-bang.
   would let shared base rules beat local overrides.
 - **Tokens**: public `--volca-*` custom properties (which inherit through
   shadow boundaries from the document) feed private `--_*` names whose
-  fallbacks are the light theme. Component CSS uses only `var(--_*)` — never
-  raw colors. **A theme is therefore an additive block of `--volca-*`
-  overrides at `:root`** (e.g. behind `[data-theme='dark']` or
-  `prefers-color-scheme`) — no component changes needed.
+  fallbacks are `light-dark()` pairs — the browser picks a side from the
+  active `color-scheme` (declared `light dark` in index.css and in
+  `.storybook/preview-head.html`), so components follow the OS preference
+  and match the page's existing `prefers-color-scheme` palette. Component
+  CSS uses only `var(--_*)` — never raw colors. Custom themes remain an
+  additive block of `--volca-*` overrides at `:root`; a future manual
+  light/dark toggle is just `document.documentElement.style.colorScheme`.
 - **Shared recipes**: `.control` (inputs/selects/textareas incl. focus,
   disabled, invalid), `.btn`, `.card`/`.card--soft` (frames), `.card-title`,
   `.group-label`, `.preset-row`.

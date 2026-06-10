@@ -9,27 +9,34 @@
  *
  * Tokens: the public `--volca-*` properties inherit from the document, so a
  * theme is just a block of overrides at :root (or any ancestor) — see
- * MIGRATION.md. The private `--_*` names bind the light-theme defaults in one
- * place and are what rules consume. Discipline: component CSS never uses raw
- * colors — only `var(--_*)`.
+ * MIGRATION.md. The private `--_*` names bind the defaults in one place and
+ * are what rules consume. Discipline: component CSS never uses raw colors —
+ * only `var(--_*)`.
+ *
+ * Defaults are light-dark() pairs: the browser picks a side from the active
+ * color-scheme, which index.css declares as `light dark` and which inherits
+ * through shadow boundaries — so the components follow the OS preference,
+ * matching the page's own prefers-color-scheme palette (dark bg #16171d).
+ * Surfaces invert by elevation: lightest-on-top in light mode becomes
+ * lighter-the-higher in dark.
  */
 export const SHARED_CSS = `
   :host {
-    --_accent:        var(--volca-accent, #2b6cb0);
-    --_accent-hover:  var(--volca-accent-hover, #2257a0);
-    --_accent-soft:   var(--volca-accent-soft, #ebf2fa);
-    --_on-accent:     var(--volca-on-accent, #fff);
-    --_danger:        var(--volca-danger, #c53030);
-    --_text:          var(--volca-text, #333);
-    --_muted:         var(--volca-text-muted, #555);
-    --_text-disabled: var(--volca-text-disabled, #888);
-    --_border:        var(--volca-border, #ccc);
-    --_border-soft:   var(--volca-border-soft, #ddd);
-    --_surface:       var(--volca-surface, #fff);
-    --_surface-1:     var(--volca-surface-1, #fafafa);
-    --_surface-2:     var(--volca-surface-2, #f3f3f3);
-    --_bg-hover:      var(--volca-bg-hover, #f0f0f0);
-    --_bg-disabled:   var(--volca-bg-disabled, #f0f0f0);
+    --_accent:        var(--volca-accent, light-dark(#2b6cb0, #5b9bd9));
+    --_accent-hover:  var(--volca-accent-hover, light-dark(#2257a0, #6faae2));
+    --_accent-soft:   var(--volca-accent-soft, light-dark(#ebf2fa, #25303d));
+    --_on-accent:     var(--volca-on-accent, light-dark(#fff, #0d1117));
+    --_danger:        var(--volca-danger, light-dark(#c53030, #f08080));
+    --_text:          var(--volca-text, light-dark(#333, #d6d4dc));
+    --_muted:         var(--volca-text-muted, light-dark(#555, #9ca3af));
+    --_text-disabled: var(--volca-text-disabled, light-dark(#888, #6a6c78));
+    --_border:        var(--volca-border, light-dark(#ccc, #3a3c48));
+    --_border-soft:   var(--volca-border-soft, light-dark(#ddd, #2e303a));
+    --_surface:       var(--volca-surface, light-dark(#fff, #2a2b34));
+    --_surface-1:     var(--volca-surface-1, light-dark(#fafafa, #22232b));
+    --_surface-2:     var(--volca-surface-2, light-dark(#f3f3f3, #1c1d24));
+    --_bg-hover:      var(--volca-bg-hover, light-dark(#f0f0f0, #333540));
+    --_bg-disabled:   var(--volca-bg-disabled, light-dark(#f0f0f0, #23242c));
     --_font-ui:       var(--volca-font-ui, ui-sans-serif, system-ui, sans-serif);
     --_font-mono:     var(--volca-font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
   }
