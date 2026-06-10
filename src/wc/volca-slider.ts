@@ -34,7 +34,8 @@ template.innerHTML = `
     }
     .slider__row {
       display: grid;
-      grid-template-columns: 6rem 1fr 3rem;
+      /* last column sizes to the number box, so values never overflow it */
+      grid-template-columns: 6rem 1fr auto;
       align-items: center;
       gap: 0.5rem;
     }
@@ -45,7 +46,10 @@ template.innerHTML = `
       width: 100%;
     }
     .slider__value {
-      width: 3rem;
+      /* content-box: room for "-100" plus spinners — .control's border-box
+         would shave padding+border off the content and clip the digits */
+      box-sizing: content-box;
+      width: 3.25rem;
       text-align: right;
       font-variant-numeric: tabular-nums;
       padding: 0.125rem 0.25rem;
